@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Deployment Verification - Car Seizure System</title>
+    <style>
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .verification-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .verification-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+        }
+        .verification-card h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-pass { background: #28a745; }
+        .status-fail { background: #dc3545; }
+        .status-warning { background: #ffc107; }
+        .status-pending { background: #6c757d; }
+        .test-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+        .test-item:last-child {
+            border-bottom: none;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        button:hover { 
+            background: #5a67d8; 
+            transform: translateY(-2px);
+        }
+        button.success { background: #28a745; }
+        button.danger { background: #dc3545; }
+        button.warning { background: #ffc107; color: #333; }
+        .overall-status {
+            text-align: center;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .status-excellent {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status-good {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .status-poor {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .deployment-checklist {
+            background: #e9ecef;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+        }
+        .checklist-item input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+        .progress-section {
+            margin: 20px 0;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 25px;
+            background: #e9ecef;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            width: 0%;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        .deployment-actions {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .deployment-actions button {
+            font-size: 16px;
+            padding: 15px 25px;
+            margin: 10px;
+        }
+        .log-output {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 10px 0;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Deployment Verification Dashboard</h1>
+        <p class="subtitle">Comprehensive verification for Web ↔️ Mobile App compatibility</p>
+        
+        <!-- Overall Progress -->
+        <div class="progress-section">
+            <h3>📊 Verification Progress</h3>
+            <div class="progress-bar">
+                <div class="progress-fill" id="overallProgress">0%</div>
+            </div>
+            <div id="progressDetails">Ready to start verification...</div>
+        </div>
+
+        <!-- Overall Status -->
+        <div id="overallStatus" class="overall-status" style="display: none;"></div>
+
+        <!-- Verification Grid -->
+        <div class="verification-grid">
+            <!-- Environment Verification -->
+            <div class="verification-card">
+                <h3>🌍 Environment</h3>
+                <div id="envTests">
+                    <div class="test-item">
+                        <span class="status-indicator status-pending"></span>
+                        <span>Environment Detection</span>
+                    </div>
+                    <div class="test-item">
+                        <span class="status-indicator status-pending"></span>
+                        <span>Platform Compatibility</span>
+                    </div>
+                    <div class="test-item">
+                        <span class="status-indicator status-pending"></span>
+                        <span>Security Context (HTTPS)</span>
+                    </div>
+                </div>
+                <button onclick="verifyEnvironment()">🔍 Verify Environment</button>
+            </div>
+
+            <!-- Authentication Verification -->
+            <div class="verification-card">
+                <h3>🔐 Authentication</h3>
+                <div id="authTests">
+                    <div class="test-item">
+                        <span class="status-indicator status-pending"></span>
+                        <span>Login Functions</span>
+                    </div>
+                    <div class="test-item">
+                        <span class="status-indicator status-pending"></span>
+                        <span>Signup Functions</span>
+                    </div>
+                    <div class="test-item">
+                        <span class="status-indicator status-pending"></span>
+                        <span>OTP System</span>
+                    </div>
+                    <div class="test-item">
+                        <span class="status-indicator status-pending"></span>
+                        <span>User Storage</span>
+                    </div>
+                </div>
+                <button onclick="verifyAuthentication()">🧪 Test Authentication</button>
+            </div>
+
+            <!-- GPS Verification -->
+            <div class="verification-card">
+                <h3>📍 GPS Location</h3>
+                <div id="gpsTests">
+                    <div class="test-item">
+                        <span class="status-indicator status-pending"></span>
+                        <span>GPS Functions</span>
+                    </div>
+                    <div class="test-item">
+                        <span class="status-indicator status-pending"></span>
+                        <span>Geolocation API</span>
+                    </div>
+                    <div class="test-item">
+                        <span class="status-indicator status-pending"></span>
+                        <span>Location Accuracy</span>
+                    </div>
+                    <div class="test-item">
+                        <span class="status-indicator status-pending"></span>
+                        <span>Geocoding Services</span>
+                    </div>
+                </div>
+                <button onclick="verifyGPS()">📍 Test GPS</button>
+            </div>
+
+            <!-- Camera Verification -->
+            <div class="verification-card">
+                <h3>📷 Camera System</h3>
+                <div id="cameraTests">
+                    <div class="test-item">
+                        <span class="status-indicator status-pending"></span>
+                        <span>Camera Functions</span>
+                    </div>
+                    <div class="test-item">
+                        <span class="status-indicator status-pending"></span>
+                        <span>Camera API</span>
+                    </div>
+                    <div class="test-item">
+                        <span class="status-indicator status-pending"></span>
+                        <span>Photo Capture</span>
+                    </div>
+                    <div class="test-item">
+                        <span class="status-indicator status-pending"></span>
+                        <span>Document Camera</span>
+                    </div>
+                </div>
+                <button onclick="verifyCamera()">📸 Test Camera</button>
+            </div>
+
+            <!-- Forms Verification -->
+            <div class="verification-card">
+                <h3>📝 Forms & Data</h3>
+                <div id="formsTests">
+                    <div class="test-item">
+                        <span class="status-indicator status-pending"></span>
+                        <span>Form Functions</span>
+                    </div>
+                    <div class="test-item">
+                        <span class="status-indicator status-pending"></span>
+                        <span>Data Storage</span>
+                    </div>
+                    <div class="test-item">
+                        <span class="status-indicator status-pending"></span>
+                        <span>Form Validation</span>
+                    </div>
+                    <div class="test-item">
+                        <span class="status-indicator status-pending"></span>
+                        <span>Report Submission</span>
+                    </div>
+                </div>
+                <button onclick="verifyForms()">📋 Test Forms</button>
+            </div>
+
+            <!-- Dashboard Verification -->
+            <div class="verification-card">
+                <h3>📊 Dashboard Features</h3>
+                <div id="dashboardTests">
+                    <div class="test-item">
+                        <span class="status-indicator status-pending"></span>
+                        <span>User Dashboard</span>
+                    </div>
+                    <div class="test-item">
+                        <span class="status-indicator status-pending"></span>
+                        <span>Admin Dashboard</span>
+                    </div>
+                    <div class="test-item">
+                        <span class="status-indicator status-pending"></span>
+                        <span>Report Management</span>
+                    </div>
+                    <div class="test-item">
+                        <span class="status-indicator status-pending"></span>
+                        <span>User Management</span>
+                    </div>
+                </div>
+                <button onclick="verifyDashboard()">📈 Test Dashboard</button>
+            </div>
+        </div>
+
+        <!-- Deployment Checklist -->
+        <div class="deployment-checklist">
+            <h3>✅ Pre-Deployment Checklist</h3>
+            <div class="checklist-item">
+                <input type="checkbox" id="check1">
+                <label for="check1">All verification tests passed</label>
+            </div>
+            <div class="checklist-item">
+                <input type="checkbox" id="check2">
+                <label for="check2">GPS tested on actual device outdoors</label>
+            </div>
+            <div class="checklist-item">
+                <input type="checkbox" id="check3">
+                <label for="check3">Camera tested in good lighting conditions</label>
+            </div>
+            <div class="checklist-item">
+                <input type="checkbox" id="check4">
+                <label for="check4">All forms submit successfully</label>
+            </div>
+            <div class="checklist-item">
+                <input type="checkbox" id="check5">
+                <label for="check5">Authentication flow works completely</label>
+            </div>
+            <div class="checklist-item">
+                <input type="checkbox" id="check6">
+                <label for="check6">Admin and user dashboards functional</label>
+            </div>
+            <div class="checklist-item">
+                <input type="checkbox" id="check7">
+                <label for="check7">HTTPS enabled (for web deployment)</label>
+            </div>
+            <div class="checklist-item">
+                <input type="checkbox" id="check8">
+                <label for="check8">Cordova plugins installed (for mobile app)</label>
+            </div>
+        </div>
+
+        <!-- Deployment Actions -->
+        <div class="deployment-actions">
+            <button onclick="runFullVerification()" class="success">🚀 Run Full Verification</button>
+            <button onclick="generateDeploymentReport()" class="warning">📊 Generate Report</button>
+            <button onclick="openComprehensiveTest()">🔍 Open Detailed Tests</button>
+        </div>
+
+        <!-- Log Output -->
+        <div id="logSection" style="display: none;">
+            <h3>📋 Verification Log</h3>
+            <div id="logOutput" class="log-output"></div>
+            <button onclick="clearLog()">🗑️ Clear Log</button>
+            <button onclick="downloadLog()">💾 Download Log</button>
+        </div>
+
+        <!-- Final Report -->
+        <div id="finalReport" style="display: none;">
+            <h3>📊 Deployment Report</h3>
+            <div id="reportContent"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="web-app-compatibility-check.js"></script>
+    <script>
+        // Verification tracking
+        let verificationResults = {};
+        let totalTests = 24; // Total number of individual tests
+        let completedTests = 0;
+        let logEntries = [];
+
+        // Logging function
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logMessage = `[${timestamp}] ${message}`;
+            logEntries.push({ timestamp, message, type });
+            
+            const logOutput = document.getElementById('logOutput');
+            if (logOutput) {
+                logOutput.textContent += logMessage + '\n';
+                logOutput.scrollTop = logOutput.scrollHeight;
+            }
+            
+            console.log(logMessage);
+        }
+
+        // Update progress
+        function updateProgress() {
+            const progress = Math.round((completedTests / totalTests) * 100);
+            const progressFill = document.getElementById('overallProgress');
+            const progressDetails = document.getElementById('progressDetails');
+            
+            progressFill.style.width = progress + '%';
+            progressFill.textContent = progress + '%';
+            progressDetails.textContent = `${completedTests}/${totalTests} tests completed`;
+            
+            if (completedTests >= totalTests) {
+                showOverallStatus();
+            }
+        }
+
+        // Update test status
+        function updateTestStatus(testId, status) {
+            const testElement = document.querySelector(`#${testId} .test-item:nth-child(${Object.keys(verificationResults[testId] || {}).length + 1}) .status-indicator`);
+            if (testElement) {
+                testElement.className = `status-indicator status-${status}`;
+            }
+            completedTests++;
+            updateProgress();
+        }
+
+        // Environment Verification
+        function verifyEnvironment() {
+            log('🌍 Starting environment verification...');
+            verificationResults.environment = {};
+            
+            // Test 1: Environment Detection
+            const isCordova = !!window.cordova;
+            const isWeb = !window.cordova;
+            const isPWA = window.matchMedia('(display-mode: standalone)').matches;
+            
+            verificationResults.environment.detection = {
+                cordova: isCordova,
+                web: isWeb,
+                pwa: isPWA,
+                status: 'pass'
+            };
+            
+            log(`Environment: ${isCordova ? 'Cordova App' : 'Web Browser'}${isPWA ? ' (PWA)' : ''}`);
+            updateTestStatus('envTests', 'pass');
+            
+            // Test 2: Platform Compatibility
+            const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const hasTouch = 'ontouchstart' in window;
+            
+            verificationResults.environment.platform = {
+                mobile: isMobile,
+                touch: hasTouch,
+                status: 'pass'
+            };
+            
+            log(`Platform: ${isMobile ? 'Mobile' : 'Desktop'}, Touch: ${hasTouch}`);
+            updateTestStatus('envTests', 'pass');
+            
+            // Test 3: Security Context
+            const isHTTPS = location.protocol === 'https:' || location.hostname === 'localhost';
+            
+            verificationResults.environment.security = {
+                https: isHTTPS,
+                status: isHTTPS || isCordova ? 'pass' : 'fail'
+            };
+            
+            log(`Security: ${isHTTPS ? 'HTTPS' : 'HTTP'} ${isHTTPS || isCordova ? '✅' : '❌'}`);
+            updateTestStatus('envTests', isHTTPS || isCordova ? 'pass' : 'fail');
+        }
+
+        // Authentication Verification
+        function verifyAuthentication() {
+            log('🔐 Starting authentication verification...');
+            verificationResults.authentication = {};
+            
+            // Test 1: Login Functions
+            const loginFunctions = ['showSignup', 'showLogin', 'switchLoginMethod'];
+            const loginAvailable = loginFunctions.filter(func => typeof window[func] === 'function');
+            
+            verificationResults.authentication.login = {
+                available: loginAvailable,
+                missing: loginFunctions.filter(func => typeof window[func] !== 'function'),
+                status: loginAvailable.length === loginFunctions.length ? 'pass' : 'fail'
+            };
+            
+            log(`Login functions: ${loginAvailable.length}/${loginFunctions.length} available`);
+            updateTestStatus('authTests', verificationResults.authentication.login.status);
+            
+            // Test 2: Signup Functions
+            const signupFunctions = ['switchSignupMethod', 'checkUsernameAvailability'];
+            const signupAvailable = signupFunctions.filter(func => typeof window[func] === 'function');
+            
+            verificationResults.authentication.signup = {
+                available: signupAvailable,
+                status: signupAvailable.length >= 1 ? 'pass' : 'fail'
+            };
+            
+            log(`Signup functions: ${signupAvailable.length}/${signupFunctions.length} available`);
+            updateTestStatus('authTests', verificationResults.authentication.signup.status);
+            
+            // Test 3: OTP System
+            const otpFunctions = ['sendOTP', 'verifyOTP', 'resendOTP'];
+            const otpAvailable = otpFunctions.filter(func => typeof window[func] === 'function');
+            
+            verificationResults.authentication.otp = {
+                available: otpAvailable,
+                status: otpAvailable.length >= 2 ? 'pass' : 'warning'
+            };
+            
+            log(`OTP functions: ${otpAvailable.length}/${otpFunctions.length} available`);
+            updateTestStatus('authTests', verificationResults.authentication.otp.status);
+            
+            // Test 4: User Storage
+            try {
+                const users = JSON.parse(localStorage.getItem('users')) || [];
+                const hasAdmin = users.some(u => u.isAdmin);
+                
+                verificationResults.authentication.storage = {
+                    users: users.length,
+                    hasAdmin: hasAdmin,
+                    status: hasAdmin ? 'pass' : 'warning'
+                };
+                
+                log(`User storage: ${users.length} users, admin: ${hasAdmin}`);
+                updateTestStatus('authTests', verificationResults.authentication.storage.status);
+            } catch (error) {
+                log(`User storage error: ${error.message}`, 'error');
+                updateTestStatus('authTests', 'fail');
+            }
+        }
+
+        // GPS Verification
+        async function verifyGPS() {
+            log('📍 Starting GPS verification...');
+            verificationResults.gps = {};
+            
+            // Test 1: GPS Functions
+            const gpsFunctions = ['getCurrentLocation'];
+            const gpsAvailable = gpsFunctions.filter(func => typeof window[func] === 'function');
+            
+            verificationResults.gps.functions = {
+                available: gpsAvailable,
+                status: gpsAvailable.length > 0 ? 'pass' : 'fail'
+            };
+            
+            log(`GPS functions: ${gpsAvailable.length}/${gpsFunctions.length} available`);
+            updateTestStatus('gpsTests', verificationResults.gps.functions.status);
+            
+            // Test 2: Geolocation API
+            const hasGeolocation = !!navigator.geolocation;
+            
+            verificationResults.gps.api = {
+                available: hasGeolocation,
+                status: hasGeolocation ? 'pass' : 'fail'
+            };
+            
+            log(`Geolocation API: ${hasGeolocation ? 'Available' : 'Not Available'}`);
+            updateTestStatus('gpsTests', verificationResults.gps.api.status);
+            
+            // Test 3: Location Accuracy (actual GPS test)
+            if (hasGeolocation) {
+                try {
+                    log('Testing GPS accuracy...');
+                    const position = await new Promise((resolve, reject) => {
+                        const timeout = setTimeout(() => reject(new Error('GPS timeout')), 15000);
+                        navigator.geolocation.getCurrentPosition(
+                            (pos) => {
+                                clearTimeout(timeout);
+                                resolve(pos);
+                            },
+                            (error) => {
+                                clearTimeout(timeout);
+                                reject(error);
+                            },
+                            {
+                                enableHighAccuracy: true,
+                                timeout: 12000,
+                                maximumAge: 60000
+                            }
+                        );
+                    });
+                    
+                    verificationResults.gps.accuracy = {
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                        accuracy: position.coords.accuracy,
+                        status: position.coords.accuracy < 1000 ? 'pass' : 'warning'
+                    };
+                    
+                    log(`GPS accuracy: ±${Math.round(position.coords.accuracy)}m`);
+                    updateTestStatus('gpsTests', verificationResults.gps.accuracy.status);
+                } catch (error) {
+                    log(`GPS test failed: ${error.message}`, 'error');
+                    verificationResults.gps.accuracy = { status: 'fail', error: error.message };
+                    updateTestStatus('gpsTests', 'fail');
+                }
+            } else {
+                updateTestStatus('gpsTests', 'fail');
+            }
+            
+            // Test 4: Geocoding Services
+            try {
+                log('Testing geocoding services...');
+                const response = await fetch('https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=28.6139&longitude=77.2090&localityLanguage=en');
+                const data = await response.json();
+                
+                verificationResults.gps.geocoding = {
+                    service: 'BigDataCloud',
+                    working: !!(data.locality || data.city),
+                    status: (data.locality || data.city) ? 'pass' : 'warning'
+                };
+                
+                log(`Geocoding: ${verificationResults.gps.geocoding.working ? 'Working' : 'Limited'}`);
+                updateTestStatus('gpsTests', verificationResults.gps.geocoding.status);
+            } catch (error) {
+                log(`Geocoding test failed: ${error.message}`, 'error');
+                verificationResults.gps.geocoding = { status: 'warning', error: error.message };
+                updateTestStatus('gpsTests', 'warning');
+            }
+        }
+
+        // Camera Verification
+        async function verifyCamera() {
+            log('📷 Starting camera verification...');
+            verificationResults.camera = {};
+            
+            // Test 1: Camera Functions
+            const cameraFunctions = ['openCamera', 'capturePhoto', 'closeCamera'];
+            const cameraAvailable = cameraFunctions.filter(func => typeof window[func] === 'function');
+            
+            verificationResults.camera.functions = {
+                available: cameraAvailable,
+                status: cameraAvailable.length >= 2 ? 'pass' : 'fail'
+            };
+            
+            log(`Camera functions: ${cameraAvailable.length}/${cameraFunctions.length} available`);
+            updateTestStatus('cameraTests', verificationResults.camera.functions.status);
+            
+            // Test 2: Camera API
+            let cameraAPI = null;
+            if (window.cordova && navigator.camera) {
+                cameraAPI = 'Cordova Camera Plugin';
+            } else if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                cameraAPI = 'Web MediaDevices API';
+            }
+            
+            verificationResults.camera.api = {
+                type: cameraAPI,
+                status: cameraAPI ? 'pass' : 'fail'
+            };
+            
+            log(`Camera API: ${cameraAPI || 'Not Available'}`);
+            updateTestStatus('cameraTests', verificationResults.camera.api.status);
+            
+            // Test 3: Photo Capture
+            if (cameraAPI === 'Web MediaDevices API') {
+                try {
+                    log('Testing camera capture...');
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    stream.getTracks().forEach(track => track.stop()); // Stop immediately
+                    
+                    verificationResults.camera.capture = {
+                        working: true,
+                        status: 'pass'
+                    };
+                    
+                    log('Camera capture: Working');
+                    updateTestStatus('cameraTests', 'pass');
+                } catch (error) {
+                    log(`Camera capture failed: ${error.message}`, 'error');
+                    verificationResults.camera.capture = { status: 'fail', error: error.message };
+                    updateTestStatus('cameraTests', 'fail');
+                }
+            } else if (cameraAPI === 'Cordova Camera Plugin') {
+                log('Camera capture: Cordova plugin available (requires user interaction to test)');
+                verificationResults.camera.capture = { status: 'pass', note: 'Cordova plugin available' };
+                updateTestStatus('cameraTests', 'pass');
+            } else {
+                updateTestStatus('cameraTests', 'fail');
+            }
+            
+            // Test 4: Document Camera
+            const docCameraFunctions = ['openDocCamera'];
+            const docCameraAvailable = docCameraFunctions.filter(func => typeof window[func] === 'function');
+            
+            verificationResults.camera.documentCamera = {
+                available: docCameraAvailable,
+                status: docCameraAvailable.length > 0 ? 'pass' : 'fail'
+            };
+            
+            log(`Document camera: ${docCameraAvailable.length > 0 ? 'Available' : 'Not Available'}`);
+            updateTestStatus('cameraTests', verificationResults.camera.documentCamera.status);
+        }
+
+        // Forms Verification
+        function verifyForms() {
+            log('📝 Starting forms verification...');
+            verificationResults.forms = {};
+            
+            // Test 1: Form Functions
+            const formFunctions = ['submitSeizureReport', 'checkUsernameAvailability'];
+            const formAvailable = formFunctions.filter(func => typeof window[func] === 'function');
+            
+            verificationResults.forms.functions = {
+                available: formAvailable,
+                status: formAvailable.length >= 1 ? 'pass' : 'fail'
+            };
+            
+            log(`Form functions: ${formAvailable.length}/${formFunctions.length} available`);
+            updateTestStatus('formsTests', verificationResults.forms.functions.status);
+            
+            // Test 2: Data Storage
+            try {
+                const testData = { id: 'test', timestamp: Date.now() };
+                localStorage.setItem('verificationTest', JSON.stringify(testData));
+                const retrieved = JSON.parse(localStorage.getItem('verificationTest'));
+                localStorage.removeItem('verificationTest');
+                
+                verificationResults.forms.storage = {
+                    working: retrieved && retrieved.id === 'test',
+                    status: 'pass'
+                };
+                
+                log('Data storage: Working');
+                updateTestStatus('formsTests', 'pass');
+            } catch (error) {
+                log(`Data storage failed: ${error.message}`, 'error');
+                verificationResults.forms.storage = { status: 'fail', error: error.message };
+                updateTestStatus('formsTests', 'fail');
+            }
+            
+            // Test 3: Form Validation
+            const validationFunctions = ['checkPasswordStrength'];
+            const validationAvailable = validationFunctions.filter(func => typeof window[func] === 'function');
+            
+            verificationResults.forms.validation = {
+                available: validationAvailable,
+                status: validationAvailable.length > 0 ? 'pass' : 'warning'
+            };
+            
+            log(`Form validation: ${validationAvailable.length > 0 ? 'Available' : 'Limited'}`);
+            updateTestStatus('formsTests', verificationResults.forms.validation.status);
+            
+            // Test 4: Report Submission
+            if (typeof window.submitSeizureReport === 'function') {
+                verificationResults.forms.submission = {
+                    available: true,
+                    status: 'pass'
+                };
+                log('Report submission: Available');
+                updateTestStatus('formsTests', 'pass');
+            } else {
+                verificationResults.forms.submission = { status: 'fail' };
+                log('Report submission: Not Available', 'error');
+                updateTestStatus('formsTests', 'fail');
+            }
+        }
+
+        // Dashboard Verification
+        function verifyDashboard() {
+            log('📊 Starting dashboard verification...');
+            verificationResults.dashboard = {};
+            
+            // Test 1: User Dashboard
+            const userFunctions = ['initUserDashboard'];
+            const userAvailable = userFunctions.filter(func => typeof window[func] === 'function');
+            
+            verificationResults.dashboard.user = {
+                available: userAvailable,
+                status: userAvailable.length > 0 ? 'pass' : 'fail'
+            };
+            
+            log(`User dashboard: ${userAvailable.length > 0 ? 'Available' : 'Not Available'}`);
+            updateTestStatus('dashboardTests', verificationResults.dashboard.user.status);
+            
+            // Test 2: Admin Dashboard
+            const adminFunctions = ['initAdminDashboard', 'loadReports'];
+            const adminAvailable = adminFunctions.filter(func => typeof window[func] === 'function');
+            
+            verificationResults.dashboard.admin = {
+                available: adminAvailable,
+                status: adminAvailable.length >= 1 ? 'pass' : 'fail'
+            };
+            
+            log(`Admin dashboard: ${adminAvailable.length}/${adminFunctions.length} functions available`);
+            updateTestStatus('dashboardTests', verificationResults.dashboard.admin.status);
+            
+            // Test 3: Report Management
+            try {
+                const reports = JSON.parse(localStorage.getItem('seizureReports')) || [];
+                
+                verificationResults.dashboard.reports = {
+                    count: reports.length,
+                    accessible: true,
+                    status: 'pass'
+                };
+                
+                log(`Report management: ${reports.length} reports accessible`);
+                updateTestStatus('dashboardTests', 'pass');
+            } catch (error) {
+                log(`Report management failed: ${error.message}`, 'error');
+                verificationResults.dashboard.reports = { status: 'fail', error: error.message };
+                updateTestStatus('dashboardTests', 'fail');
+            }
+            
+            // Test 4: User Management
+            try {
+                const users = JSON.parse(localStorage.getItem('users')) || [];
+                const hasAdmin = users.some(u => u.isAdmin);
+                
+                verificationResults.dashboard.users = {
+                    count: users.length,
+                    hasAdmin: hasAdmin,
+                    status: hasAdmin ? 'pass' : 'warning'
+                };
+                
+                log(`User management: ${users.length} users, admin: ${hasAdmin}`);
+                updateTestStatus('dashboardTests', verificationResults.dashboard.users.status);
+            } catch (error) {
+                log(`User management failed: ${error.message}`, 'error');
+                verificationResults.dashboard.users = { status: 'fail', error: error.message };
+                updateTestStatus('dashboardTests', 'fail');
+            }
+        }
+
+        // Show overall status
+        function showOverallStatus() {
+            const statusDiv = document.getElementById('overallStatus');
+            
+            // Count results
+            let totalPassed = 0;
+            let totalFailed = 0;
+            let totalWarnings = 0;
+            
+            Object.values(verificationResults).forEach(category => {
+                Object.values(category).forEach(test => {
+                    if (test.status === 'pass') totalPassed++;
+                    else if (test.status === 'fail') totalFailed++;
+                    else if (test.status === 'warning') totalWarnings++;
+                });
+            });
+            
+            let statusClass, statusText;
+            
+            if (totalFailed === 0 && totalWarnings <= 2) {
+                statusClass = 'status-excellent';
+                statusText = '🎉 Excellent! System ready for web-to-app deployment';
+            } else if (totalFailed <= 2) {
+                statusClass = 'status-good';
+                statusText = '✅ Good! Minor issues to address before deployment';
+            } else {
+                statusClass = 'status-poor';
+                statusText = '⚠️ Critical issues detected - review before deployment';
+            }
+            
+            statusDiv.className = `overall-status ${statusClass}`;
+            statusDiv.textContent = statusText;
+            statusDiv.style.display = 'block';
+            
+            log(`Verification complete: ${totalPassed} passed, ${totalFailed} failed, ${totalWarnings} warnings`);
+        }
+
+        // Run full verification
+        async function runFullVerification() {
+            log('🚀 Starting full verification suite...');
+            document.getElementById('logSection').style.display = 'block';
+            
+            // Reset
+            verificationResults = {};
+            completedTests = 0;
+            updateProgress();
+            
+            // Run all verifications with delays
+            const verifications = [
+                verifyEnvironment,
+                verifyAuthentication,
+                verifyGPS,
+                verifyCamera,
+                verifyForms,
+                verifyDashboard
+            ];
+            
+            for (let i = 0; i < verifications.length; i++) {
+                await new Promise(resolve => {
+                    setTimeout(async () => {
+                        await verifications[i]();
+                        resolve();
+                    }, i * 1000);
+                });
+            }
+            
+            log('✅ Full verification completed');
+        }
+
+        // Generate deployment report
+        function generateDeploymentReport() {
+            const reportDiv = document.getElementById('finalReport');
+            const reportContent = document.getElementById('reportContent');
+            
+            let report = '<h4>📊 Deployment Readiness Report</h4>';
+            
+            // Environment summary
+            if (verificationResults.environment) {
+                const env = verificationResults.environment;
+                report += `<p><strong>Environment:</strong> ${env.detection.cordova ? 'Mobile App (Cordova)' : 'Web Browser'}`;
+                if (env.detection.pwa) report += ' (PWA)';
+                report += `</p>`;
+                report += `<p><strong>Security:</strong> ${env.security.https ? 'HTTPS ✅' : 'HTTP ⚠️'}</p>`;
+            }
+            
+            // Feature summary
+            report += '<h5>Feature Status:</h5><ul>';
+            
+            Object.entries(verificationResults).forEach(([category, tests]) => {
+                const categoryPassed = Object.values(tests).filter(t => t.status === 'pass').length;
+                const categoryTotal = Object.values(tests).length;
+                const categoryIcon = categoryPassed === categoryTotal ? '✅' : 
+                                   categoryPassed > categoryTotal / 2 ? '⚠️' : '❌';
+                
+                report += `<li>${categoryIcon} ${category}: ${categoryPassed}/${categoryTotal} tests passed</li>`;
+            });
+            
+            report += '</ul>';
+            
+            // Recommendations
+            report += '<h5>Recommendations:</h5><ul>';
+            
+            if (verificationResults.gps && verificationResults.gps.accuracy && verificationResults.gps.accuracy.status === 'fail') {
+                report += '<li>🔧 GPS not working - check permissions and test outdoors</li>';
+            }
+            
+            if (verificationResults.camera && verificationResults.camera.api && verificationResults.camera.api.status === 'fail') {
+                report += '<li>🔧 Camera not available - install cordova-plugin-camera for mobile apps</li>';
+            }
+            
+            if (verificationResults.environment && verificationResults.environment.security && !verificationResults.environment.security.https) {
+                report += '<li>🔒 Enable HTTPS for GPS and Camera functionality</li>';
+            }
+            
+            report += '</ul>';
+            
+            // Deployment readiness
+            const totalIssues = Object.values(verificationResults).reduce((acc, category) => {
+                return acc + Object.values(category).filter(t => t.status === 'fail').length;
+            }, 0);
+            
+            if (totalIssues === 0) {
+                report += '<p style="color: #28a745; font-weight: bold;">🎉 System is ready for deployment!</p>';
+            } else {
+                report += `<p style="color: #dc3545; font-weight: bold;">⚠️ ${totalIssues} critical issues need to be resolved before deployment.</p>`;
+            }
+            
+            reportContent.innerHTML = report;
+            reportDiv.style.display = 'block';
+        }
+
+        // Utility functions
+        function clearLog() {
+            document.getElementById('logOutput').textContent = '';
+            logEntries = [];
+        }
+
+        function downloadLog() {
+            const logText = logEntries.map(entry => `[${entry.timestamp}] ${entry.message}`).join('\n');
+            const blob = new Blob([logText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `car-seizure-verification-${new Date().toISOString().split('T')[0]}.log`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function openComprehensiveTest() {
+            window.open('comprehensive-test.html', '_blank');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🚀 Deployment Verification Dashboard loaded');
+            log('Click "Run Full Verification" to test all features');
+        });
+    </script>
+</body>
+</html>

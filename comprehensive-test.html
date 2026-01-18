@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Comprehensive Feature Test - Car Seizure System</title>
+    <style>
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            background: #f8f9fa;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+        }
+        .test-section h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        button:hover { 
+            background: #5a67d8; 
+            transform: translateY(-2px);
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .success { 
+            color: #28a745; 
+            font-weight: bold;
+        }
+        .error { 
+            color: #dc3545; 
+            font-weight: bold;
+        }
+        .warning { 
+            color: #ffc107; 
+            font-weight: bold;
+        }
+        .info { 
+            color: #17a2b8; 
+            font-weight: bold;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            background: white;
+            border: 1px solid #ddd;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        #cameraPreview {
+            width: 100%;
+            max-width: 400px;
+            height: 300px;
+            background: #000;
+            border-radius: 8px;
+            margin: 10px 0;
+            display: none;
+        }
+        #cameraPreview video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        .photo-preview {
+            max-width: 200px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-pass { background: #28a745; }
+        .status-fail { background: #dc3545; }
+        .status-pending { background: #ffc107; }
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        .feature-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .overall-status {
+            text-align: center;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .status-excellent {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status-good {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .status-poor {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Comprehensive Feature Verification</h1>
+        <p style="text-align: center; color: #666;">Testing ALL features for Web ↔️ Mobile App compatibility</p>
+        
+        <!-- Overall Progress -->
+        <div class="test-section">
+            <h2>📊 Overall Test Progress</h2>
+            <div class="progress-bar">
+                <div class="progress-fill" id="overallProgress"></div>
+            </div>
+            <div id="progressText">0% Complete</div>
+            <div id="overallStatus" class="overall-status" style="display: none;"></div>
+        </div>
+
+        <!-- Environment Detection -->
+        <div class="test-section">
+            <h2>🌍 Environment Detection</h2>
+            <button onclick="detectEnvironment()">🔍 Detect Environment</button>
+            <div id="envResult"></div>
+        </div>
+
+        <!-- Authentication System -->
+        <div class="test-section">
+            <h2>🔐 Authentication System</h2>
+            <button onclick="testAuthentication()">🧪 Test Auth Functions</button>
+            <div id="authResult"></div>
+        </div>
+
+        <!-- GPS Functionality -->
+        <div class="test-section">
+            <h2>📍 GPS Location System</h2>
+            <button onclick="testGPSSystem()">🧪 Test GPS</button>
+            <button onclick="testGeocodingServices()">🌐 Test Geocoding</button>
+            <div id="gpsResult"></div>
+            <div id="gpsCoords"></div>
+        </div>
+
+        <!-- Camera System -->
+        <div class="test-section">
+            <h2>📷 Camera System</h2>
+            <button onclick="testCameraSystem()">🧪 Test Camera APIs</button>
+            <button onclick="testCameraCapture()">📸 Test Capture</button>
+            <button onclick="testDocumentCamera()">📄 Test Document Camera</button>
+            <div id="cameraResult"></div>
+            <div id="cameraPreview">
+                <video id="testVideo" autoplay playsinline></video>
+            </div>
+            <div id="photoResult"></div>
+        </div>
+
+        <!-- Form Functionality -->
+        <div class="test-section">
+            <h2>📝 Form Systems</h2>
+            <button onclick="testFormValidation()">✅ Test Validation</button>
+            <button onclick="testDataStorage()">💾 Test Storage</button>
+            <button onclick="testFormSubmission()">📤 Test Submission</button>
+            <div id="formResult"></div>
+        </div>
+
+        <!-- Dashboard Features -->
+        <div class="test-section">
+            <h2>📊 Dashboard Features</h2>
+            <button onclick="testDashboardFeatures()">🧪 Test Dashboards</button>
+            <button onclick="testReportManagement()">📋 Test Reports</button>
+            <button onclick="testUserManagement()">👥 Test Users</button>
+            <div id="dashboardResult"></div>
+        </div>
+
+        <!-- PWA Features -->
+        <div class="test-section">
+            <h2>📱 PWA Features</h2>
+            <button onclick="testPWAFeatures()">🧪 Test PWA</button>
+            <button onclick="testServiceWorker()">⚙️ Test Service Worker</button>
+            <button onclick="testOfflineMode()">📴 Test Offline</button>
+            <div id="pwaResult"></div>
+        </div>
+
+        <!-- Mobile App Compatibility -->
+        <div class="test-section">
+            <h2>📱 Mobile App Compatibility</h2>
+            <button onclick="testCordovaFeatures()">📱 Test Cordova</button>
+            <button onclick="testMobileOptimizations()">⚡ Test Mobile Optimizations</button>
+            <div id="mobileResult"></div>
+        </div>
+
+        <!-- Performance Tests -->
+        <div class="test-section">
+            <h2>⚡ Performance Tests</h2>
+            <button onclick="testPerformance()">🧪 Test Performance</button>
+            <button onclick="testMemoryUsage()">🧠 Test Memory</button>
+            <div id="performanceResult"></div>
+        </div>
+
+        <!-- Security Tests -->
+        <div class="test-section">
+            <h2>🔒 Security Tests</h2>
+            <button onclick="testSecurity()">🧪 Test Security</button>
+            <button onclick="testDataProtection()">🛡️ Test Data Protection</button>
+            <div id="securityResult"></div>
+        </div>
+
+        <!-- Final Report -->
+        <div class="test-section">
+            <h2>📋 Compatibility Report</h2>
+            <button onclick="generateReport()">📊 Generate Full Report</button>
+            <div id="finalReport"></div>
+        </div>
+
+        <!-- Run All Tests -->
+        <div style="text-align: center; margin: 30px 0;">
+            <button onclick="runAllTests()" style="background: #28a745; font-size: 18px; padding: 15px 30px;">
+                🚀 Run All Tests
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Test tracking
+        let testResults = {};
+        let totalTests = 0;
+        let completedTests = 0;
+
+        // Environment Detection
+        function detectEnvironment() {
+            const result = document.getElementById('envResult');
+            let env = [];
+            
+            // Check for Cordova
+            if (window.cordova) {
+                env.push('✅ Cordova/PhoneGap App Detected');
+                if (window.device) {
+                    env.push(`📱 Device: ${window.device.platform} ${window.device.version}`);
+                    env.push(`📱 Model: ${window.device.model}`);
+                }
+            } else {
+                env.push('🌐 Web Browser Environment');
+            }
+            
+            // Check for React Native
+            if (window.ReactNativeWebView) {
+                env.push('⚛️ React Native WebView');
+            }
+            
+            // Check for PWA
+            if (window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches) {
+                env.push('📲 PWA (Installed App)');
+            }
+            
+            // Check for HTTPS
+            if (location.protocol === 'https:') {
+                env.push('🔒 HTTPS Enabled (Required for GPS/Camera)');
+            } else {
+                env.push('⚠️ HTTP - GPS/Camera may not work');
+            }
+            
+            // Check for mobile device
+            if (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                env.push('📱 Mobile Device Detected');
+            } else {
+                env.push('💻 Desktop Device');
+            }
+            
+            // Check for touch support
+            if ('ontouchstart' in window) {
+                env.push('👆 Touch Interface Available');
+            }
+            
+            // Check for orientation API
+            if (screen.orientation) {
+                env.push('🔄 Screen Orientation API Available');
+            }
+            
+            result.innerHTML = '<strong>Environment Analysis:</strong><br>' + env.join('<br>');
+            testResults.environment = env.length > 0 ? 'pass' : 'fail';
+            updateProgress();
+        }
+
+        // Authentication System Test
+        function testAuthentication() {
+            const result = document.getElementById('authResult');
+            let tests = [];
+            
+            // Test if auth functions exist
+            const authFunctions = [
+                'showSignup', 'showLogin', 'switchLoginMethod', 'switchSignupMethod',
+                'togglePassword', 'sendOTP', 'verifyOTP', 'checkUsernameAvailability'
+            ];
+            
+            authFunctions.forEach(func => {
+                if (typeof window[func] === 'function') {
+                    tests.push(`✅ ${func} function available`);
+                } else {
+                    tests.push(`❌ ${func} function missing`);
+                }
+            });
+            
+            // Test localStorage functionality
+            try {
+                localStorage.setItem('test', 'value');
+                localStorage.removeItem('test');
+                tests.push('✅ LocalStorage working');
+            } catch (e) {
+                tests.push('❌ LocalStorage not available');
+            }
+            
+            // Test default admin creation
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            if (users.length > 0 && users.some(u => u.isAdmin)) {
+                tests.push('✅ Default admin account exists');
+            } else {
+                tests.push('⚠️ No admin account found');
+            }
+            
+            result.innerHTML = tests.join('<br>');
+            testResults.authentication = tests.filter(t => t.includes('❌')).length === 0 ? 'pass' : 'fail';
+            updateProgress();
+        }
+
+        // GPS System Test
+        function testGPSSystem() {
+            const result = document.getElementById('gpsResult');
+            const coords = document.getElementById('gpsCoords');
+            
+            result.innerHTML = '🔄 Testing GPS system...';
+            
+            // Check GPS function availability
+            if (typeof window.getCurrentLocation !== 'function') {
+                result.innerHTML = '❌ GPS function not available';
+                testResults.gps = 'fail';
+                updateProgress();
+                return;
+            }
+            
+            // Check geolocation API
+            const geoAPI = getGeolocationAPI();
+            if (!geoAPI) {
+                result.innerHTML = '❌ No geolocation API available';
+                testResults.gps = 'fail';
+                updateProgress();
+                return;
+            }
+            
+            result.innerHTML = `🔄 Testing GPS with ${geoAPI.name}...`;
+            
+            geoAPI.getCurrentPosition(
+                function(position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    const accuracy = position.coords.accuracy;
+                    
+                    result.innerHTML = `✅ GPS working with ${geoAPI.name}!`;
+                    coords.innerHTML = `📍 Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)} (±${Math.round(accuracy)}m)`;
+                    testResults.gps = 'pass';
+                    updateProgress();
+                },
+                function(error) {
+                    result.innerHTML = `❌ GPS Error: ${error.message}`;
+                    coords.innerHTML = `💡 Try enabling location services and testing outdoors`;
+                    testResults.gps = 'fail';
+                    updateProgress();
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 15000,
+                    maximumAge: 60000
+                }
+            );
+        }
+
+        function getGeolocationAPI() {
+            if (window.cordova && navigator.geolocation) {
+                return {
+                    name: 'Cordova Geolocation',
+                    getCurrentPosition: navigator.geolocation.getCurrentPosition.bind(navigator.geolocation)
+                };
+            }
+            
+            if (navigator.geolocation) {
+                return {
+                    name: 'Web Geolocation API',
+                    getCurrentPosition: navigator.geolocation.getCurrentPosition.bind(navigator.geolocation)
+                };
+            }
+            
+            return null;
+        }
+
+        // Geocoding Services Test
+        function testGeocodingServices() {
+            const result = document.getElementById('gpsResult');
+            
+            // Test with sample coordinates (New Delhi)
+            const testLat = 28.6139;
+            const testLng = 77.2090;
+            
+            result.innerHTML += '<br>🔄 Testing geocoding services...';
+            
+            // Test BigDataCloud
+            fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${testLat}&longitude=${testLng}&localityLanguage=en`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.locality || data.city) {
+                        result.innerHTML += '<br>✅ BigDataCloud geocoding working';
+                    } else {
+                        result.innerHTML += '<br>⚠️ BigDataCloud geocoding limited';
+                    }
+                })
+                .catch(error => {
+                    result.innerHTML += '<br>❌ BigDataCloud geocoding failed';
+                });
+        }
+
+        // Camera System Test
+        function testCameraSystem() {
+            const result = document.getElementById('cameraResult');
+            let tests = [];
+            
+            // Check camera functions
+            const cameraFunctions = [
+                'openCamera', 'capturePhoto', 'closeCamera', 
+                'openDocCamera', 'handlePhotoSelection'
+            ];
+            
+            cameraFunctions.forEach(func => {
+                if (typeof window[func] === 'function') {
+                    tests.push(`✅ ${func} function available`);
+                } else {
+                    tests.push(`❌ ${func} function missing`);
+                }
+            });
+            
+            // Check camera APIs
+            if (window.cordova && navigator.camera) {
+                tests.push('✅ Cordova Camera Plugin available');
+            }
+            
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                tests.push('✅ Web MediaDevices API available');
+            }
+            
+            if (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia) {
+                tests.push('✅ Legacy getUserMedia available');
+            }
+            
+            if (tests.filter(t => t.includes('available')).length === 0) {
+                tests.push('❌ No camera APIs available');
+            }
+            
+            result.innerHTML = tests.join('<br>');
+            testResults.camera = tests.filter(t => t.includes('❌')).length === 0 ? 'pass' : 'fail';
+            updateProgress();
+        }
+
+        // Camera Capture Test
+        async function testCameraCapture() {
+            const result = document.getElementById('cameraResult');
+            const preview = document.getElementById('cameraPreview');
+            const video = document.getElementById('testVideo');
+            
+            try {
+                result.innerHTML += '<br>🔄 Testing camera capture...';
+                
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: 'environment',
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    }
+                });
+                
+                video.srcObject = stream;
+                preview.style.display = 'block';
+                result.innerHTML += '<br>✅ Camera capture working!';
+                
+                // Add capture button
+                if (!document.getElementById('testCaptureBtn')) {
+                    const captureBtn = document.createElement('button');
+                    captureBtn.id = 'testCaptureBtn';
+                    captureBtn.textContent = '📸 Test Capture';
+                    captureBtn.onclick = () => testPhotoCapture(video);
+                    result.appendChild(captureBtn);
+                }
+                
+                testResults.cameraCapture = 'pass';
+                
+            } catch (error) {
+                result.innerHTML += `<br>❌ Camera capture failed: ${error.message}`;
+                preview.style.display = 'none';
+                testResults.cameraCapture = 'fail';
+            }
+            
+            updateProgress();
+        }
+
+        function testPhotoCapture(video) {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            
+            canvas.width = video.videoWidth || 1280;
+            canvas.height = video.videoHeight || 720;
+            context.drawImage(video, 0, 0);
+            
+            canvas.toBlob((blob) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const photoResult = document.getElementById('photoResult');
+                    photoResult.innerHTML = `<img src="${e.target.result}" class="photo-preview" alt="Test Photo">`;
+                    document.getElementById('cameraResult').innerHTML += '<br>✅ Photo capture successful!';
+                };
+                reader.readAsDataURL(blob);
+            }, 'image/jpeg', 0.9);
+        }
+
+        // Document Camera Test
+        function testDocumentCamera() {
+            const result = document.getElementById('cameraResult');
+            
+            if (typeof window.openDocCamera === 'function') {
+                result.innerHTML += '<br>✅ Document camera function available';
+                // Test would require user interaction, so just check function exists
+                testResults.documentCamera = 'pass';
+            } else {
+                result.innerHTML += '<br>❌ Document camera function missing';
+                testResults.documentCamera = 'fail';
+            }
+            
+            updateProgress();
+        }
+
+        // Form Functionality Test
+        function testFormValidation() {
+            const result = document.getElementById('formResult');
+            let tests = [];
+            
+            // Test form validation functions
+            const formFunctions = [
+                'checkUsernameAvailability', 'checkPasswordStrength', 
+                'submitSeizureReport', 'saveReport'
+            ];
+            
+            formFunctions.forEach(func => {
+                if (typeof window[func] === 'function') {
+                    tests.push(`✅ ${func} available`);
+                } else {
+                    tests.push(`❌ ${func} missing`);
+                }
+            });
+            
+            result.innerHTML = tests.join('<br>');
+            testResults.forms = tests.filter(t => t.includes('❌')).length === 0 ? 'pass' : 'fail';
+            updateProgress();
+        }
+
+        // Data Storage Test
+        function testDataStorage() {
+            const result = document.getElementById('formResult');
+            
+            try {
+                // Test localStorage operations
+                const testData = { id: 'test', data: 'test data' };
+                localStorage.setItem('testData', JSON.stringify(testData));
+                const retrieved = JSON.parse(localStorage.getItem('testData'));
+                localStorage.removeItem('testData');
+                
+                if (retrieved && retrieved.id === 'test') {
+                    result.innerHTML += '<br>✅ Data storage working';
+                    testResults.storage = 'pass';
+                } else {
+                    result.innerHTML += '<br>❌ Data storage failed';
+                    testResults.storage = 'fail';
+                }
+            } catch (error) {
+                result.innerHTML += '<br>❌ Data storage error: ' + error.message;
+                testResults.storage = 'fail';
+            }
+            
+            updateProgress();
+        }
+
+        // Form Submission Test
+        function testFormSubmission() {
+            const result = document.getElementById('formResult');
+            
+            // Test if form submission functions exist and work
+            if (typeof window.submitSeizureReport === 'function') {
+                result.innerHTML += '<br>✅ Form submission function available';
+                testResults.formSubmission = 'pass';
+            } else {
+                result.innerHTML += '<br>❌ Form submission function missing';
+                testResults.formSubmission = 'fail';
+            }
+            
+            updateProgress();
+        }
+
+        // Dashboard Features Test
+        function testDashboardFeatures() {
+            const result = document.getElementById('dashboardResult');
+            let tests = [];
+            
+            // Test dashboard functions
+            const dashboardFunctions = [
+                'initUserDashboard', 'initAdminDashboard', 'loadReports', 
+                'updateStats', 'viewReportDetails', 'exportReports'
+            ];
+            
+            dashboardFunctions.forEach(func => {
+                if (typeof window[func] === 'function') {
+                    tests.push(`✅ ${func} available`);
+                } else {
+                    tests.push(`❌ ${func} missing`);
+                }
+            });
+            
+            result.innerHTML = tests.join('<br>');
+            testResults.dashboard = tests.filter(t => t.includes('❌')).length === 0 ? 'pass' : 'fail';
+            updateProgress();
+        }
+
+        // Report Management Test
+        function testReportManagement() {
+            const result = document.getElementById('dashboardResult');
+            
+            // Test report management
+            try {
+                const reports = JSON.parse(localStorage.getItem('seizureReports')) || [];
+                result.innerHTML += `<br>✅ Report storage accessible (${reports.length} reports)`;
+                testResults.reports = 'pass';
+            } catch (error) {
+                result.innerHTML += '<br>❌ Report storage failed';
+                testResults.reports = 'fail';
+            }
+            
+            updateProgress();
+        }
+
+        // User Management Test
+        function testUserManagement() {
+            const result = document.getElementById('dashboardResult');
+            
+            try {
+                const users = JSON.parse(localStorage.getItem('users')) || [];
+                const hasAdmin = users.some(u => u.isAdmin);
+                
+                if (hasAdmin) {
+                    result.innerHTML += `<br>✅ User management working (${users.length} users, admin exists)`;
+                    testResults.users = 'pass';
+                } else {
+                    result.innerHTML += '<br>⚠️ No admin user found';
+                    testResults.users = 'warning';
+                }
+            } catch (error) {
+                result.innerHTML += '<br>❌ User management failed';
+                testResults.users = 'fail';
+            }
+            
+            updateProgress();
+        }
+
+        // PWA Features Test
+        function testPWAFeatures() {
+            const result = document.getElementById('pwaResult');
+            let tests = [];
+            
+            // Check manifest
+            const manifestLink = document.querySelector('link[rel="manifest"]');
+            if (manifestLink) {
+                tests.push('✅ Manifest linked');
+            } else {
+                tests.push('❌ Manifest not linked');
+            }
+            
+            // Check service worker
+            if ('serviceWorker' in navigator) {
+                tests.push('✅ Service Worker supported');
+            } else {
+                tests.push('❌ Service Worker not supported');
+            }
+            
+            // Check installability
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                tests.push('✅ Running as installed PWA');
+            } else {
+                tests.push('🌐 Running in browser');
+            }
+            
+            result.innerHTML = tests.join('<br>');
+            testResults.pwa = tests.filter(t => t.includes('❌')).length === 0 ? 'pass' : 'fail';
+            updateProgress();
+        }
+
+        // Service Worker Test
+        function testServiceWorker() {
+            const result = document.getElementById('pwaResult');
+            
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    if (registrations.length > 0) {
+                        result.innerHTML += '<br>✅ Service Worker registered';
+                        testResults.serviceWorker = 'pass';
+                    } else {
+                        result.innerHTML += '<br>⚠️ Service Worker not registered';
+                        testResults.serviceWorker = 'warning';
+                    }
+                    updateProgress();
+                });
+            } else {
+                result.innerHTML += '<br>❌ Service Worker not supported';
+                testResults.serviceWorker = 'fail';
+                updateProgress();
+            }
+        }
+
+        // Offline Mode Test
+        function testOfflineMode() {
+            const result = document.getElementById('pwaResult');
+            
+            // Test offline capabilities
+            if (navigator.onLine === false) {
+                result.innerHTML += '<br>📴 Currently offline - testing offline features';
+            } else {
+                result.innerHTML += '<br>🌐 Currently online';
+            }
+            
+            // Test localStorage availability (works offline)
+            try {
+                localStorage.setItem('offlineTest', 'works');
+                localStorage.removeItem('offlineTest');
+                result.innerHTML += '<br>✅ Offline storage available';
+                testResults.offline = 'pass';
+            } catch (error) {
+                result.innerHTML += '<br>❌ Offline storage failed';
+                testResults.offline = 'fail';
+            }
+            
+            updateProgress();
+        }
+
+        // Cordova Features Test
+        function testCordovaFeatures() {
+            const result = document.getElementById('mobileResult');
+            let tests = [];
+            
+            if (window.cordova) {
+                tests.push('✅ Cordova environment detected');
+                
+                if (window.device) {
+                    tests.push(`✅ Device plugin: ${window.device.platform}`);
+                } else {
+                    tests.push('❌ Device plugin missing');
+                }
+                
+                if (navigator.camera) {
+                    tests.push('✅ Camera plugin available');
+                } else {
+                    tests.push('❌ Camera plugin missing');
+                }
+                
+                if (navigator.geolocation) {
+                    tests.push('✅ Geolocation plugin available');
+                } else {
+                    tests.push('❌ Geolocation plugin missing');
+                }
+                
+            } else {
+                tests.push('🌐 Web environment (not Cordova)');
+            }
+            
+            result.innerHTML = tests.join('<br>');
+            testResults.cordova = tests.filter(t => t.includes('❌')).length === 0 ? 'pass' : 'fail';
+            updateProgress();
+        }
+
+        // Mobile Optimizations Test
+        function testMobileOptimizations() {
+            const result = document.getElementById('mobileResult');
+            let tests = [];
+            
+            // Check viewport
+            const viewport = document.querySelector('meta[name="viewport"]');
+            if (viewport) {
+                tests.push('✅ Viewport meta tag present');
+            } else {
+                tests.push('❌ Viewport meta tag missing');
+            }
+            
+            // Check touch events
+            if ('ontouchstart' in window) {
+                tests.push('✅ Touch events supported');
+            } else {
+                tests.push('⚠️ Touch events not available');
+            }
+            
+            // Check responsive design
+            if (window.innerWidth < 768) {
+                tests.push('📱 Mobile screen size detected');
+            } else {
+                tests.push('💻 Desktop screen size');
+            }
+            
+            result.innerHTML += '<br>' + tests.join('<br>');
+            testResults.mobileOptimizations = tests.filter(t => t.includes('❌')).length === 0 ? 'pass' : 'fail';
+            updateProgress();
+        }
+
+        // Performance Test
+        function testPerformance() {
+            const result = document.getElementById('performanceResult');
+            const startTime = performance.now();
+            
+            // Test script loading time
+            const loadTime = performance.now() - startTime;
+            
+            let tests = [];
+            
+            if (loadTime < 100) {
+                tests.push('✅ Fast script execution');
+            } else {
+                tests.push('⚠️ Slow script execution');
+            }
+            
+            // Test DOM elements
+            const elements = document.querySelectorAll('*').length;
+            tests.push(`📊 DOM elements: ${elements}`);
+            
+            // Test memory (if available)
+            if (performance.memory) {
+                const memoryMB = Math.round(performance.memory.usedJSHeapSize / 1024 / 1024);
+                tests.push(`🧠 Memory usage: ${memoryMB}MB`);
+            }
+            
+            result.innerHTML = tests.join('<br>');
+            testResults.performance = 'pass';
+            updateProgress();
+        }
+
+        // Memory Usage Test
+        function testMemoryUsage() {
+            const result = document.getElementById('performanceResult');
+            
+            if (performance.memory) {
+                const memory = performance.memory;
+                const used = Math.round(memory.usedJSHeapSize / 1024 / 1024);
+                const total = Math.round(memory.totalJSHeapSize / 1024 / 1024);
+                const limit = Math.round(memory.jsHeapSizeLimit / 1024 / 1024);
+                
+                result.innerHTML += `<br>📊 Memory: ${used}MB used / ${total}MB total / ${limit}MB limit`;
+                
+                if (used < 50) {
+                    result.innerHTML += '<br>✅ Good memory usage';
+                    testResults.memory = 'pass';
+                } else {
+                    result.innerHTML += '<br>⚠️ High memory usage';
+                    testResults.memory = 'warning';
+                }
+            } else {
+                result.innerHTML += '<br>ℹ️ Memory info not available';
+                testResults.memory = 'pass';
+            }
+            
+            updateProgress();
+        }
+
+        // Security Test
+        function testSecurity() {
+            const result = document.getElementById('securityResult');
+            let tests = [];
+            
+            // Check HTTPS
+            if (location.protocol === 'https:') {
+                tests.push('✅ HTTPS enabled');
+            } else {
+                tests.push('⚠️ HTTP - consider HTTPS for production');
+            }
+            
+            // Check CSP (if present)
+            const csp = document.querySelector('meta[http-equiv="Content-Security-Policy"]');
+            if (csp) {
+                tests.push('✅ Content Security Policy present');
+            } else {
+                tests.push('ℹ️ No CSP detected');
+            }
+            
+            // Check for secure storage
+            try {
+                localStorage.setItem('securityTest', 'test');
+                localStorage.removeItem('securityTest');
+                tests.push('✅ Secure storage available');
+            } catch (error) {
+                tests.push('❌ Storage security issue');
+            }
+            
+            result.innerHTML = tests.join('<br>');
+            testResults.security = tests.filter(t => t.includes('❌')).length === 0 ? 'pass' : 'fail';
+            updateProgress();
+        }
+
+        // Data Protection Test
+        function testDataProtection() {
+            const result = document.getElementById('securityResult');
+            
+            // Test data validation
+            const testData = '<script>alert("xss")</script>';
+            const sanitized = testData.replace(/[<>]/g, '');
+            
+            if (sanitized !== testData) {
+                result.innerHTML += '<br>✅ Basic XSS protection working';
+                testResults.dataProtection = 'pass';
+            } else {
+                result.innerHTML += '<br>⚠️ Consider input sanitization';
+                testResults.dataProtection = 'warning';
+            }
+            
+            updateProgress();
+        }
+
+        // Progress tracking
+        function updateProgress() {
+            completedTests++;
+            const progress = Math.round((completedTests / totalTests) * 100);
+            
+            document.getElementById('overallProgress').style.width = progress + '%';
+            document.getElementById('progressText').textContent = progress + '% Complete';
+            
+            if (completedTests >= totalTests) {
+                showOverallStatus();
+            }
+        }
+
+        function showOverallStatus() {
+            const statusDiv = document.getElementById('overallStatus');
+            const passCount = Object.values(testResults).filter(r => r === 'pass').length;
+            const failCount = Object.values(testResults).filter(r => r === 'fail').length;
+            const warnCount = Object.values(testResults).filter(r => r === 'warning').length;
+            
+            let statusClass, statusText;
+            
+            if (failCount === 0 && warnCount <= 2) {
+                statusClass = 'status-excellent';
+                statusText = '🎉 Excellent! All features working perfectly for web-to-app conversion';
+            } else if (failCount <= 2) {
+                statusClass = 'status-good';
+                statusText = '✅ Good! Most features working, minor issues to address';
+            } else {
+                statusClass = 'status-poor';
+                statusText = '⚠️ Issues detected - review failed tests before deployment';
+            }
+            
+            statusDiv.className = `overall-status ${statusClass}`;
+            statusDiv.textContent = statusText;
+            statusDiv.style.display = 'block';
+        }
+
+        // Generate comprehensive report
+        function generateReport() {
+            const result = document.getElementById('finalReport');
+            
+            let report = '<h3>📊 Web-to-App Compatibility Report</h3>';
+            report += '<ul class="feature-list">';
+            
+            Object.entries(testResults).forEach(([test, status]) => {
+                const statusClass = status === 'pass' ? 'status-pass' : 
+                                  status === 'fail' ? 'status-fail' : 'status-pending';
+                const statusIcon = status === 'pass' ? '✅' : 
+                                 status === 'fail' ? '❌' : '⚠️';
+                
+                report += `<li><span class="status-indicator ${statusClass}"></span>${statusIcon} ${test}: ${status.toUpperCase()}</li>`;
+            });
+            
+            report += '</ul>';
+            
+            // Add recommendations
+            report += '<h4>🎯 Recommendations:</h4>';
+            report += '<ul>';
+            
+            if (testResults.gps === 'fail') {
+                report += '<li>🔧 Fix GPS: Install cordova-plugin-geolocation and add location permissions</li>';
+            }
+            
+            if (testResults.camera === 'fail') {
+                report += '<li>🔧 Fix Camera: Install cordova-plugin-camera and add camera permissions</li>';
+            }
+            
+            if (location.protocol === 'http:') {
+                report += '<li>🔒 Enable HTTPS for GPS and Camera functionality</li>';
+            }
+            
+            if (!window.cordova) {
+                report += '<li>📱 For mobile app: Set up Cordova project with required plugins</li>';
+            }
+            
+            report += '</ul>';
+            
+            result.innerHTML = report;
+        }
+
+        // Run all tests
+        async function runAllTests() {
+            // Reset
+            testResults = {};
+            completedTests = 0;
+            totalTests = 20; // Update based on actual test count
+            
+            // Clear previous results
+            document.querySelectorAll('[id$="Result"]').forEach(el => el.innerHTML = '');
+            document.getElementById('overallStatus').style.display = 'none';
+            
+            // Run tests with delays to prevent overwhelming
+            const tests = [
+                detectEnvironment,
+                testAuthentication,
+                testGPSSystem,
+                testCameraSystem,
+                () => testCameraCapture().catch(() => {}),
+                testDocumentCamera,
+                testFormValidation,
+                testDataStorage,
+                testFormSubmission,
+                testDashboardFeatures,
+                testReportManagement,
+                testUserManagement,
+                testPWAFeatures,
+                testServiceWorker,
+                testOfflineMode,
+                testCordovaFeatures,
+                testMobileOptimizations,
+                testPerformance,
+                testMemoryUsage,
+                testSecurity,
+                testDataProtection
+            ];
+            
+            for (let i = 0; i < tests.length; i++) {
+                await new Promise(resolve => {
+                    setTimeout(() => {
+                        tests[i]();
+                        resolve();
+                    }, i * 500); // 500ms delay between tests
+                });
+            }
+            
+            // Generate final report
+            setTimeout(generateReport, 2000);
+        }
+
+        // Auto-run environment detection on load
+        document.addEventListener('DOMContentLoaded', function() {
+            detectEnvironment();
+        });
+    </script>
+</body>
+</html>

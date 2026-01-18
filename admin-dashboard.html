@@ -180,5 +180,43 @@
 
     <script src="qrcode.min.js"></script>
     <script src="script.js"></script>
+    <script src="web-app-compatibility-check.js"></script>
+    <script>
+        // Additional compatibility checks for admin dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔍 Admin dashboard loaded - running compatibility check...');
+            
+            // Verify admin functions
+            const adminFunctions = ['initAdminDashboard', 'loadReports', 'updateStats', 'viewReportDetails', 'exportReports'];
+            const missingAdmin = adminFunctions.filter(func => typeof window[func] !== 'function');
+            
+            if (missingAdmin.length > 0) {
+                console.error('❌ Missing admin functions:', missingAdmin);
+            } else {
+                console.log('✅ Admin functions available');
+            }
+            
+            // Test report management
+            try {
+                const reports = JSON.parse(localStorage.getItem('seizureReports')) || [];
+                console.log(`✅ Report storage accessible (${reports.length} reports)`);
+            } catch (error) {
+                console.error('❌ Report storage failed:', error);
+            }
+            
+            // Test user management
+            try {
+                const users = JSON.parse(localStorage.getItem('users')) || [];
+                const hasAdmin = users.some(u => u.isAdmin);
+                if (hasAdmin) {
+                    console.log(`✅ User management working (${users.length} users, admin exists)`);
+                } else {
+                    console.warn('⚠️ No admin user found');
+                }
+            } catch (error) {
+                console.error('❌ User management failed:', error);
+            }
+        });
+    </script>
 </body>
 </html>
