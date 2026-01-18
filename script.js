@@ -1056,6 +1056,9 @@ function initUserDashboard() {
     // Display user name
     document.getElementById('userNameDisplay').textContent = currentUser.name;
     
+    // Load user reports
+    loadUserReports();
+    
     // Handle photo upload preview
     const photoInput = document.getElementById('vehiclePhoto');
     const photoPreview = document.getElementById('photoPreview');
@@ -1132,7 +1135,209 @@ function saveReport(reportData) {
     // Reset form
     document.getElementById('seizureForm').reset();
     document.getElementById('photoPreview').innerHTML = '';
+    
+    // Refresh user reports list if it exists
+    if (typeof loadUserReports === 'function') {
+        loadUserReports();
+    }
 }
+
+// User Reports Functions
+function loadUserReports() {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    if (!currentUser) return;
+    
+    const reports = JSON.parse(localStorage.getItem('seizureReports')) || [];
+    const userReports = reports.filter(report => report.submittedById === currentUser.id);
+    
+    displayUserReports(userReports);
+}
+
+function displayUserReports(reports) {
+    const reportsList = document.getElementById('userReportsList');
+    if (!reportsList) return;
+    
+    if (reports.length === 0) {
+        reportsList.innerHTML = `
+            <div class="no-reports-message">
+                <h3>📋 No Reports Yet</h3>
+                <p>You haven't submitted any reports yet. Use the form above to submit your first report.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // Sort by submission date (newest first)
+    reports.sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+    
+    reportsList.innerHTML = reports.map(report => `
+        <div class="user-report-card" onclick="viewUserReportDetails('${report.id}')">
+            <div class="user-report-header">
+                <span class="user-report-id">${report.id}</span>
+                <span class="user-report-date">${new Date(report.submittedAt).toLocaleDateString()}</span>
+            </div>
+            <div class="user-report-info">
+                <div class="user-info-item">
+                    <span class="user-info-label">Vehicle Number</span>
+                    <span class="user-info-value">${report.vehicleInfo.number}</span>
+                </div>
+                <div class="user-info-item">
+                    <span class="user-info-label">Vehicle Type</span>
+                    <span class="user-info-value">${report.vehicleInfo.type}</span>
+                </div>
+                <div class="user-info-item">
+                    <span class="user-info-label">Location</span>
+                    <span class="user-info-value">${report.seizureDetails.location}</span>
+                </div>
+                <div class="user-info-item">
+                    <span class="user-info-label">Status</span>
+                    <span class="user-report-status status-${report.status}">${report.status}</span>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function filterUserReports() {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    if (!currentUser) return;
+    
+    const filter = document.getElementById('userReportFilter').value;
+    const reports = JSON.parse(localStorage.getItem('seizureReports')) || [];
+    let userReports = reports.filter(report => report.submittedById === currentUser.id);
+    
+    if (filter !== 'all') {
+        userReports = userReports.filter(report => report.status === filter);
+    }
+    
+    displayUserReports(userReports);
+}
+
+function refreshUserReports() {
+    loadUserReports();
+}
+
+function viewUserReportDetails(reportId) {
+    const reports = JSON.parse(localStorage.getItem('seizureReports')) || [];
+    const report = reports.find(r => r.id === reportId);
+    
+    if (!report) return;
+    
+    const modal = document.getElementById('userReportModal');
+    const reportDetails = document.getElementById('userReportDetails');
+    
+    reportDetails.innerHTML = `
+        <h2>📋 Report Details - ${report.id}</h2>
+        
+        <div class="report-detail-section">
+            <h4>🚙 Vehicle Information</h4>
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <span class="detail-label">Vehicle Number</span>
+                    <span class="detail-value">${report.vehicleInfo.number}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Type</span>
+                    <span class="detail-value">${report.vehicleInfo.type}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Make & Model</span>
+                    <span class="detail-value">${report.vehicleInfo.make}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Color</span>
+                    <span class="detail-value">${report.vehicleInfo.color}</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="report-detail-section">
+            <h4>📍 Seizure Details</h4>
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <span class="detail-label">Location</span>
+                    <span class="detail-value">${report.seizureDetails.location}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Reason</span>
+                    <span class="detail-value">${report.seizureDetails.reason}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Status</span>
+                    <span class="detail-value">
+                        <span class="user-report-status status-${report.status}">${report.status}</span>
+                    </span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Submitted Date</span>
+                    <span class="detail-value">${new Date(report.submittedAt).toLocaleString()}</span>
+                </div>
+            </div>
+            ${report.seizureDetails.notes ? `
+                <div class="detail-item" style="margin-top: 15px;">
+                    <span class="detail-label">Additional Notes</span>
+                    <span class="detail-value">${report.seizureDetails.notes}</span>
+                </div>
+            ` : ''}
+        </div>
+        
+        ${report.coordinates ? `
+            <div class="report-detail-section">
+                <h4>🗺️ GPS Location</h4>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <span class="detail-label">Latitude</span>
+                        <span class="detail-value">${report.coordinates.lat.toFixed(6)}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Longitude</span>
+                        <span class="detail-value">${report.coordinates.lng.toFixed(6)}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Accuracy</span>
+                        <span class="detail-value">±${Math.round(report.coordinates.accuracy)}m</span>
+                    </div>
+                </div>
+            </div>
+        ` : ''}
+        
+        ${report.photo ? `
+            <div class="report-detail-section">
+                <h4>📷 Photo Evidence</h4>
+                <div class="photo-evidence">
+                    <img src="${report.photo}" alt="Vehicle Photo" style="max-width: 100%; border-radius: 8px;">
+                </div>
+            </div>
+        ` : ''}
+        
+        ${report.documents && Object.keys(report.documents).length > 0 ? `
+            <div class="report-detail-section">
+                <h4>📄 Additional Documents</h4>
+                <div class="documents-grid">
+                    ${Object.entries(report.documents).map(([key, doc]) => `
+                        <div class="document-item">
+                            <h5>${doc.name}</h5>
+                            <img src="${doc.data}" alt="${doc.name}" style="max-width: 200px; border-radius: 8px;">
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        ` : ''}
+    `;
+    
+    modal.style.display = 'block';
+}
+
+function closeUserReportModal() {
+    document.getElementById('userReportModal').style.display = 'none';
+}
+
+// Expose functions globally
+window.loadUserReports = loadUserReports;
+window.filterUserReports = filterUserReports;
+window.refreshUserReports = refreshUserReports;
+window.viewUserReportDetails = viewUserReportDetails;
+window.closeUserReportModal = closeUserReportModal;
 
 // Admin Dashboard Functions
 function initAdminDashboard() {

@@ -194,6 +194,36 @@
 
                 <button type="submit" class="submit-btn">Submit Report</button>
             </form>
+        </main>
+
+        <!-- User Reports Section -->
+        <section class="user-reports-section">
+            <div class="reports-header">
+                <h2>📋 My Submitted Reports</h2>
+                <div class="reports-controls">
+                    <button onclick="refreshUserReports()" class="refresh-btn">🔄 Refresh</button>
+                    <select id="userReportFilter" onchange="filterUserReports()" class="filter-select">
+                        <option value="all">All Reports</option>
+                        <option value="pending">Pending</option>
+                        <option value="reviewed">Reviewed</option>
+                        <option value="resolved">Resolved</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div id="userReportsList" class="user-reports-list">
+                <!-- User reports will be loaded here -->
+            </div>
+        </section>
+    </div>
+
+    <!-- Report Details Modal -->
+    <div id="userReportModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeUserReportModal()">&times;</span>
+            <div id="userReportDetails">
+                <!-- Report details will be loaded here -->
+            </div>
         </div>
     </div>
 
