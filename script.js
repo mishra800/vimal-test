@@ -11,6 +11,10 @@ if ('serviceWorker' in navigator) {
     });
 }
 
+// Script loading verification
+console.log('🚀 Car Seizure Management System - Script Loading Started');
+console.log('📅 Script loaded at:', new Date().toISOString());
+
 // Enhanced Authentication System
 
 // Global error handler
@@ -20,6 +24,13 @@ window.addEventListener('error', function(e) {
     console.error('Error filename:', e.filename);
     console.error('Error line:', e.lineno);
 });
+
+// Unhandled promise rejection handler
+window.addEventListener('unhandledrejection', function(e) {
+    console.error('Unhandled promise rejection:', e.reason);
+});
+
+console.log('✅ Error handlers initialized');
 
 // Current authentication state
 let currentLoginMethod = 'email';
@@ -86,6 +97,10 @@ function showLogin() {
     }
 }
 
+// Ensure functions are globally accessible
+window.showSignup = showSignup;
+window.showLogin = showLogin;
+
 // Login method switching
 function switchLoginMethod(method) {
     try {
@@ -148,6 +163,10 @@ function switchSignupMethod(method) {
     }
 }
 
+// Ensure functions are globally accessible
+window.switchLoginMethod = switchLoginMethod;
+window.switchSignupMethod = switchSignupMethod;
+
 // Password visibility toggle
 function togglePassword(inputId) {
     try {
@@ -169,6 +188,9 @@ function togglePassword(inputId) {
         console.error('Error toggling password visibility:', error);
     }
 }
+
+// Ensure function is globally accessible
+window.togglePassword = togglePassword;
 
 // Username availability check
 function checkUsernameAvailability() {
@@ -3131,9 +3153,8 @@ if (window.location.pathname.includes('welcome.html')) {
 }
 // Camera Integration for User Dashboard
 
-let cameraStream = null;
-let currentDocumentType = null;
-let capturedPhotoData = null;
+// Camera variables are already declared at the top of the file
+// Removed duplicate declarations to prevent syntax errors
 
 // Camera functionality
 async function openCamera() {
@@ -3628,3 +3649,48 @@ if (window.location.pathname.includes('user-dashboard.html')) {
         }
     });
 }
+
+// ===== GLOBAL FUNCTION EXPOSURE =====
+// Ensure all functions are accessible globally for onclick handlers
+
+// Authentication functions
+window.showSignup = showSignup;
+window.showLogin = showLogin;
+window.switchLoginMethod = switchLoginMethod;
+window.switchSignupMethod = switchSignupMethod;
+window.togglePassword = togglePassword;
+
+// OTP functions
+if (typeof sendOTP !== 'undefined') window.sendOTP = sendOTP;
+if (typeof verifyOTP !== 'undefined') window.verifyOTP = verifyOTP;
+if (typeof resendOTP !== 'undefined') window.resendOTP = resendOTP;
+if (typeof backToPhoneInput !== 'undefined') window.backToPhoneInput = backToPhoneInput;
+if (typeof proceedPhoneSignup !== 'undefined') window.proceedPhoneSignup = proceedPhoneSignup;
+if (typeof verifySignupOTP !== 'undefined') window.verifySignupOTP = verifySignupOTP;
+if (typeof resendSignupOTP !== 'undefined') window.resendSignupOTP = resendSignupOTP;
+if (typeof backToSignupDetails !== 'undefined') window.backToSignupDetails = backToSignupDetails;
+if (typeof moveToNext !== 'undefined') window.moveToNext = moveToNext;
+if (typeof moveToNextSignup !== 'undefined') window.moveToNextSignup = moveToNextSignup;
+
+// Modal functions
+if (typeof showForgotPassword !== 'undefined') window.showForgotPassword = showForgotPassword;
+if (typeof closeForgotPassword !== 'undefined') window.closeForgotPassword = closeForgotPassword;
+
+// Camera functions
+if (typeof openCamera !== 'undefined') window.openCamera = openCamera;
+if (typeof capturePhoto !== 'undefined') window.capturePhoto = capturePhoto;
+if (typeof closeCamera !== 'undefined') window.closeCamera = closeCamera;
+if (typeof handlePhotoSelection !== 'undefined') window.handlePhotoSelection = handlePhotoSelection;
+if (typeof openDocCamera !== 'undefined') window.openDocCamera = openDocCamera;
+if (typeof captureDocument !== 'undefined') window.captureDocument = captureDocument;
+if (typeof closeDocumentCamera !== 'undefined') window.closeDocumentCamera = closeDocumentCamera;
+if (typeof handleDocumentUpload !== 'undefined') window.handleDocumentUpload = handleDocumentUpload;
+
+// Dashboard functions
+if (typeof logout !== 'undefined') window.logout = logout;
+if (typeof openPaymentTracker !== 'undefined') window.openPaymentTracker = openPaymentTracker;
+
+// User management functions
+if (typeof checkUsernameAvailability !== 'undefined') window.checkUsernameAvailability = checkUsernameAvailability;
+
+console.log('All functions exposed to global scope for onclick handlers');
