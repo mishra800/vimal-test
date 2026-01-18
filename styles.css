@@ -103,6 +103,11 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
+/* Utility Classes */
+.hidden {
+    display: none !important;
+}
+
 /* Modern Container Styles */
 .container {
     background: var(--white);

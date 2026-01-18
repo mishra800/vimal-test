@@ -1,7 +1,7 @@
 // Register service worker for PWA
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/sw.js')
+        navigator.serviceWorker.register('./sw.js')
             .then(function(registration) {
                 console.log('ServiceWorker registration successful');
             })
@@ -12,6 +12,14 @@ if ('serviceWorker' in navigator) {
 }
 
 // Enhanced Authentication System
+
+// Global error handler
+window.addEventListener('error', function(e) {
+    console.error('Global error caught:', e.error);
+    console.error('Error message:', e.message);
+    console.error('Error filename:', e.filename);
+    console.error('Error line:', e.lineno);
+});
 
 // Current authentication state
 let currentLoginMethod = 'email';
@@ -24,64 +32,141 @@ let cameraStream = null;
 let capturedPhotoData = null;
 let currentDocumentType = null;
 
+// Ensure DOM is loaded before executing functions
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, initializing authentication system');
+    
+    // Test if elements exist
+    const loginForm = document.getElementById('loginForm');
+    const signupForm = document.getElementById('signupForm');
+    
+    console.log('Login form found:', !!loginForm);
+    console.log('Signup form found:', !!signupForm);
+    
+    // Initialize default admin if needed
+    createDefaultAdmin();
+    
+    // Set up event listeners
+    setupEventListeners();
+});
+
+function setupEventListeners() {
+    console.log('Setting up event listeners');
+    
+    // The form event listeners are already set up in the main DOMContentLoaded handler
+    // This function is for any additional setup
+    
+    console.log('Event listeners set up complete');
+}
+
 // Form switching functions
 function showSignup() {
-    document.getElementById('loginForm').classList.add('hidden');
-    document.getElementById('signupForm').classList.remove('hidden');
+    console.log('Showing signup form');
+    const loginForm = document.getElementById('loginForm');
+    const signupForm = document.getElementById('signupForm');
+    
+    if (loginForm && signupForm) {
+        loginForm.classList.add('hidden');
+        signupForm.classList.remove('hidden');
+    } else {
+        console.error('Login or signup form not found');
+    }
 }
 
 function showLogin() {
-    document.getElementById('signupForm').classList.add('hidden');
-    document.getElementById('loginForm').classList.remove('hidden');
+    console.log('Showing login form');
+    const loginForm = document.getElementById('loginForm');
+    const signupForm = document.getElementById('signupForm');
+    
+    if (loginForm && signupForm) {
+        signupForm.classList.add('hidden');
+        loginForm.classList.remove('hidden');
+    } else {
+        console.error('Login or signup form not found');
+    }
 }
 
 // Login method switching
 function switchLoginMethod(method) {
-    currentLoginMethod = method;
-    
-    // Update tab appearance
-    document.getElementById('emailLoginTab').classList.toggle('active', method === 'email');
-    document.getElementById('phoneLoginTab').classList.toggle('active', method === 'phone');
-    
-    // Show/hide forms
-    document.getElementById('emailLogin').classList.toggle('active', method === 'email');
-    document.getElementById('phoneLogin').classList.toggle('active', method === 'phone');
-    
-    // Reset phone login steps
-    if (method === 'phone') {
-        resetPhoneLogin();
+    try {
+        currentLoginMethod = method;
+        
+        // Update tab appearance
+        const emailTab = document.getElementById('emailLoginTab');
+        const phoneTab = document.getElementById('phoneLoginTab');
+        const emailForm = document.getElementById('emailLogin');
+        const phoneForm = document.getElementById('phoneLogin');
+        
+        if (emailTab && phoneTab && emailForm && phoneForm) {
+            emailTab.classList.toggle('active', method === 'email');
+            phoneTab.classList.toggle('active', method === 'phone');
+            
+            // Show/hide forms
+            emailForm.classList.toggle('active', method === 'email');
+            phoneForm.classList.toggle('active', method === 'phone');
+            
+            // Reset phone login steps
+            if (method === 'phone') {
+                resetPhoneLogin();
+            }
+        } else {
+            console.error('Login method elements not found');
+        }
+    } catch (error) {
+        console.error('Error switching login method:', error);
     }
 }
 
 // Signup method switching
 function switchSignupMethod(method) {
-    currentSignupMethod = method;
-    
-    // Update tab appearance
-    document.getElementById('emailSignupTab').classList.toggle('active', method === 'email');
-    document.getElementById('phoneSignupTab').classList.toggle('active', method === 'phone');
-    
-    // Show/hide forms
-    document.getElementById('emailSignup').classList.toggle('active', method === 'email');
-    document.getElementById('phoneSignup').classList.toggle('active', method === 'phone');
-    
-    // Reset phone signup steps
-    if (method === 'phone') {
-        resetPhoneSignup();
+    try {
+        currentSignupMethod = method;
+        
+        // Update tab appearance
+        const emailTab = document.getElementById('emailSignupTab');
+        const phoneTab = document.getElementById('phoneSignupTab');
+        const emailForm = document.getElementById('emailSignup');
+        const phoneForm = document.getElementById('phoneSignup');
+        
+        if (emailTab && phoneTab && emailForm && phoneForm) {
+            emailTab.classList.toggle('active', method === 'email');
+            phoneTab.classList.toggle('active', method === 'phone');
+            
+            // Show/hide forms
+            emailForm.classList.toggle('active', method === 'email');
+            phoneForm.classList.toggle('active', method === 'phone');
+            
+            // Reset phone signup steps
+            if (method === 'phone') {
+                resetPhoneSignup();
+            }
+        } else {
+            console.error('Signup method elements not found');
+        }
+    } catch (error) {
+        console.error('Error switching signup method:', error);
     }
 }
 
 // Password visibility toggle
 function togglePassword(inputId) {
-    const input = document.getElementById(inputId);
-    const button = input.nextElementSibling;
-    
-    if (input.type === 'password') {
-        input.type = 'text';
-        button.textContent = '🙈';
-    } else {
-        input.type = 'password';
-        button.textContent = '👁️';
+    try {
+        const input = document.getElementById(inputId);
+        const button = input ? input.nextElementSibling : null;
+        
+        if (input && button) {
+            if (input.type === 'password') {
+                input.type = 'text';
+                button.textContent = '🙈';
+            } else {
+                input.type = 'password';
+                button.textContent = '👁️';
+            }
+        } else {
+            console.error('Password input or toggle button not found:', inputId);
+        }
+    } catch (error) {
+        console.error('Error toggling password visibility:', error);
     }
 }
 
