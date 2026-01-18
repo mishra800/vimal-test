@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Dashboard</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="apple-touch-icon" href="logo.png">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#667eea">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <div class="header-left">
+                <img src="logo.png" alt="Logo" class="header-logo">
+                <h1>Analytics Dashboard</h1>
+            </div>
+            <div class="user-info">
+                <button onclick="window.location.href='admin-dashboard.html'" class="back-btn">← Back to Reports</button>
+                <button onclick="logout()" class="logout-btn">Logout</button>
+            </div>
+        </header>
+
+        <div class="analytics-container">
+            <!-- Key Metrics -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <h3>Total Seizures</h3>
+                    <div class="metric-value" id="totalSeizures">0</div>
+                    <div class="metric-change positive" id="seizureChange">+0%</div>
+                </div>
+                <div class="metric-card">
+                    <h3>This Month</h3>
+                    <div class="metric-value" id="monthlySeizures">0</div>
+                    <div class="metric-change" id="monthlyChange">+0%</div>
+                </div>
+                <div class="metric-card">
+                    <h3>Avg Resolution Time</h3>
+                    <div class="metric-value" id="avgResolution">0h</div>
+                    <div class="metric-change" id="resolutionChange">+0%</div>
+                </div>
+                <div class="metric-card">
+                    <h3>Active Officers</h3>
+                    <div class="metric-value" id="activeOfficers">0</div>
+                    <div class="metric-change positive">+100%</div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="charts-grid">
+                <div class="chart-container">
+                    <h3>Seizures by Status</h3>
+                    <canvas id="statusChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Monthly Trend</h3>
+                    <canvas id="trendChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Seizure Reasons</h3>
+                    <canvas id="reasonChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Vehicle Types</h3>
+                    <canvas id="vehicleChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Top Locations -->
+            <div class="top-locations">
+                <h3>Top Seizure Locations</h3>
+                <div id="locationsList" class="locations-list"></div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="recent-activity">
+                <h3>Recent Activity</h3>
+                <div id="activityFeed" class="activity-feed"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="qrcode.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

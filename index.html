@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login & Signup</title>
+    <title>Login & Signup - Multi Auth</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="apple-touch-icon" href="logo.png">
     <link rel="stylesheet" href="styles.css">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#667eea">
@@ -13,38 +15,248 @@
 </head>
 <body>
     <div class="container">
+        <!-- Logo Header -->
+        <div class="logo-header">
+            <img src="logo.png" alt="Car Seizure Management System" class="app-logo">
+            <h1 class="app-title">Car Seizure Management</h1>
+        </div>
+
+        <!-- Login Form -->
         <div class="form-container" id="loginForm">
-            <h2>Login</h2>
-            <form id="login">
+            <h2>Welcome Back</h2>
+            <p class="form-subtitle">Sign in to your account</p>
+            
+            <!-- Login Method Tabs -->
+            <div class="auth-tabs">
+                <button class="tab-btn active" onclick="switchLoginMethod('email')" id="emailLoginTab">
+                    📧 Email/Username
+                </button>
+                <button class="tab-btn" onclick="switchLoginMethod('phone')" id="phoneLoginTab">
+                    📱 Phone Number
+                </button>
+            </div>
+
+            <!-- Email/Username Login -->
+            <form id="emailLogin" class="auth-form active">
                 <div class="input-group">
-                    <input type="email" id="loginEmail" placeholder="Email" required>
+                    <input type="text" id="loginIdentifier" placeholder="Email or Username" required>
+                    <span class="input-icon">👤</span>
                 </div>
                 <div class="input-group">
                     <input type="password" id="loginPassword" placeholder="Password" required>
+                    <span class="input-icon">🔒</span>
+                    <button type="button" class="toggle-password" onclick="togglePassword('loginPassword')">👁️</button>
                 </div>
-                <button type="submit">Login</button>
-                <p class="switch-form">Don't have an account? <span onclick="showSignup()">Sign up</span></p>
+                <div class="form-options">
+                    <label class="remember-me">
+                        <input type="checkbox" id="rememberMe">
+                        <span class="checkmark"></span>
+                        Remember me
+                    </label>
+                    <a href="#" onclick="showForgotPassword()" class="forgot-password">Forgot Password?</a>
+                </div>
+                <button type="submit" class="auth-btn">Sign In</button>
             </form>
+
+            <!-- Phone Number Login -->
+            <form id="phoneLogin" class="auth-form">
+                <div class="phone-login-steps">
+                    <!-- Step 1: Enter Phone Number -->
+                    <div class="phone-step active" id="phoneStep1">
+                        <div class="input-group">
+                            <select id="countryCode" class="country-code">
+                                <option value="+91">🇮🇳 +91</option>
+                                <option value="+1">🇺🇸 +1</option>
+                                <option value="+44">🇬🇧 +44</option>
+                                <option value="+86">🇨🇳 +86</option>
+                            </select>
+                            <input type="tel" id="phoneNumber" placeholder="Enter phone number" required>
+                        </div>
+                        <button type="button" onclick="sendOTP()" class="auth-btn" id="sendOtpBtn">
+                            Send OTP
+                        </button>
+                    </div>
+
+                    <!-- Step 2: Enter OTP -->
+                    <div class="phone-step" id="phoneStep2">
+                        <p class="otp-info">Enter the 6-digit OTP sent to <span id="sentToNumber"></span></p>
+                        <div class="otp-input-group">
+                            <input type="text" class="otp-digit" maxlength="1" oninput="moveToNext(this, 0)">
+                            <input type="text" class="otp-digit" maxlength="1" oninput="moveToNext(this, 1)">
+                            <input type="text" class="otp-digit" maxlength="1" oninput="moveToNext(this, 2)">
+                            <input type="text" class="otp-digit" maxlength="1" oninput="moveToNext(this, 3)">
+                            <input type="text" class="otp-digit" maxlength="1" oninput="moveToNext(this, 4)">
+                            <input type="text" class="otp-digit" maxlength="1" oninput="moveToNext(this, 5)">
+                        </div>
+                        <div class="otp-actions">
+                            <button type="button" onclick="verifyOTP()" class="auth-btn">Verify OTP</button>
+                            <button type="button" onclick="resendOTP()" class="resend-btn" id="resendBtn" disabled>
+                                Resend OTP (<span id="countdown">30</span>s)
+                            </button>
+                        </div>
+                        <button type="button" onclick="backToPhoneInput()" class="back-btn">← Back</button>
+                    </div>
+                </div>
+            </form>
+
+            <p class="switch-form">
+                Don't have an account? 
+                <span onclick="showSignup()" class="switch-link">Create Account</span>
+            </p>
         </div>
 
+        <!-- Signup Form -->
         <div class="form-container hidden" id="signupForm">
-            <h2>Sign Up</h2>
-            <form id="signup">
-                <div class="input-group">
-                    <input type="text" id="signupName" placeholder="Full Name" required>
+            <h2>Create Account</h2>
+            <p class="form-subtitle">Join us today</p>
+
+            <!-- Signup Method Tabs -->
+            <div class="auth-tabs">
+                <button class="tab-btn active" onclick="switchSignupMethod('email')" id="emailSignupTab">
+                    📧 Email
+                </button>
+                <button class="tab-btn" onclick="switchSignupMethod('phone')" id="phoneSignupTab">
+                    📱 Phone
+                </button>
+            </div>
+
+            <!-- Email Signup -->
+            <form id="emailSignup" class="auth-form active">
+                <div class="input-row">
+                    <div class="input-group">
+                        <input type="text" id="signupFirstName" placeholder="First Name" required>
+                        <span class="input-icon">👤</span>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" id="signupLastName" placeholder="Last Name" required>
+                        <span class="input-icon">👤</span>
+                    </div>
                 </div>
                 <div class="input-group">
-                    <input type="email" id="signupEmail" placeholder="Email" required>
+                    <input type="text" id="signupUsername" placeholder="Username" required>
+                    <span class="input-icon">@</span>
+                    <div class="username-status" id="usernameStatus"></div>
+                </div>
+                <div class="input-group">
+                    <input type="email" id="signupEmail" placeholder="Email Address" required>
+                    <span class="input-icon">📧</span>
+                </div>
+                <div class="input-group">
+                    <input type="tel" id="signupPhone" placeholder="Phone Number (Optional)">
+                    <span class="input-icon">📱</span>
                 </div>
                 <div class="input-group">
                     <input type="password" id="signupPassword" placeholder="Password" required>
+                    <span class="input-icon">🔒</span>
+                    <button type="button" class="toggle-password" onclick="togglePassword('signupPassword')">👁️</button>
                 </div>
                 <div class="input-group">
                     <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+                    <span class="input-icon">🔒</span>
                 </div>
-                <button type="submit">Sign Up</button>
-                <p class="switch-form">Already have an account? <span onclick="showLogin()">Login</span></p>
+                <div class="password-strength" id="passwordStrength"></div>
+                <div class="form-options">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="isAdmin">
+                        <span class="checkmark"></span>
+                        Create as Admin Account
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="agreeTerms" required>
+                        <span class="checkmark"></span>
+                        I agree to <a href="#" class="terms-link">Terms & Conditions</a>
+                    </label>
+                </div>
+                <button type="submit" class="auth-btn">Create Account</button>
             </form>
+
+            <!-- Phone Signup -->
+            <form id="phoneSignup" class="auth-form">
+                <div class="phone-signup-steps">
+                    <!-- Step 1: Enter Details -->
+                    <div class="signup-step active" id="signupStep1">
+                        <div class="input-row">
+                            <div class="input-group">
+                                <input type="text" id="phoneSignupFirstName" placeholder="First Name" required>
+                                <span class="input-icon">👤</span>
+                            </div>
+                            <div class="input-group">
+                                <input type="text" id="phoneSignupLastName" placeholder="Last Name" required>
+                                <span class="input-icon">👤</span>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <select id="signupCountryCode" class="country-code">
+                                <option value="+91">🇮🇳 +91</option>
+                                <option value="+1">🇺🇸 +1</option>
+                                <option value="+44">🇬🇧 +44</option>
+                                <option value="+86">🇨🇳 +86</option>
+                            </select>
+                            <input type="tel" id="signupPhoneNumber" placeholder="Phone Number" required>
+                        </div>
+                        <div class="input-group">
+                            <input type="password" id="phoneSignupPassword" placeholder="Password" required>
+                            <span class="input-icon">🔒</span>
+                            <button type="button" class="toggle-password" onclick="togglePassword('phoneSignupPassword')">👁️</button>
+                        </div>
+                        <div class="form-options">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="phoneIsAdmin">
+                                <span class="checkmark"></span>
+                                Create as Admin Account
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="phoneAgreeTerms" required>
+                                <span class="checkmark"></span>
+                                I agree to Terms & Conditions
+                            </label>
+                        </div>
+                        <button type="button" onclick="proceedPhoneSignup()" class="auth-btn">
+                            Verify Phone & Create Account
+                        </button>
+                    </div>
+
+                    <!-- Step 2: Verify Phone -->
+                    <div class="signup-step" id="signupStep2">
+                        <p class="otp-info">Verify your phone number <span id="signupSentToNumber"></span></p>
+                        <div class="otp-input-group">
+                            <input type="text" class="otp-digit signup-otp" maxlength="1" oninput="moveToNextSignup(this, 0)">
+                            <input type="text" class="otp-digit signup-otp" maxlength="1" oninput="moveToNextSignup(this, 1)">
+                            <input type="text" class="otp-digit signup-otp" maxlength="1" oninput="moveToNextSignup(this, 2)">
+                            <input type="text" class="otp-digit signup-otp" maxlength="1" oninput="moveToNextSignup(this, 3)">
+                            <input type="text" class="otp-digit signup-otp" maxlength="1" oninput="moveToNextSignup(this, 4)">
+                            <input type="text" class="otp-digit signup-otp" maxlength="1" oninput="moveToNextSignup(this, 5)">
+                        </div>
+                        <div class="otp-actions">
+                            <button type="button" onclick="verifySignupOTP()" class="auth-btn">Complete Registration</button>
+                            <button type="button" onclick="resendSignupOTP()" class="resend-btn" id="signupResendBtn" disabled>
+                                Resend OTP (<span id="signupCountdown">30</span>s)
+                            </button>
+                        </div>
+                        <button type="button" onclick="backToSignupDetails()" class="back-btn">← Back</button>
+                    </div>
+                </div>
+            </form>
+
+            <p class="switch-form">
+                Already have an account? 
+                <span onclick="showLogin()" class="switch-link">Sign In</span>
+            </p>
+        </div>
+
+        <!-- Forgot Password Modal -->
+        <div id="forgotPasswordModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeForgotPassword()">&times;</span>
+                <h2>Reset Password</h2>
+                <form id="forgotPasswordForm">
+                    <div class="input-group">
+                        <input type="email" id="resetEmail" placeholder="Enter your email address" required>
+                        <span class="input-icon">📧</span>
+                    </div>
+                    <button type="submit" class="auth-btn">Send Reset Link</button>
+                </form>
+            </div>
         </div>
     </div>
 

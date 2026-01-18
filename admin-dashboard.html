@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="apple-touch-icon" href="logo.png">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#667eea">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <div class="header-left">
+                <img src="logo.png" alt="Logo" class="header-logo">
+                <h1>Admin Dashboard - Car Seizure Reports</h1>
+            </div>
+            <div class="user-info">
+                <button onclick="window.location.href='analytics.html'" class="analytics-btn">📊 Analytics</button>
+                <span id="adminNameDisplay"></span>
+                <button onclick="logout()" class="logout-btn">Logout</button>
+            </div>
+        </header>
+
+        <div class="admin-controls">
+            <div class="admin-navigation">
+                <button onclick="window.location.href='user-management.html'" class="nav-btn">👥 User Management</button>
+                <button onclick="window.location.href='report-management.html'" class="nav-btn">📋 Report Management</button>
+                <button onclick="window.location.href='system-config.html'" class="nav-btn">⚙️ System Config</button>
+                <button onclick="window.location.href='audit-trail.html'" class="nav-btn">🔍 Audit Trail</button>
+            </div>
+
+            <div class="stats-container">
+                <div class="stat-card">
+                    <h3>Total Reports</h3>
+                    <span id="totalReports">0</span>
+                </div>
+                <div class="stat-card">
+                    <h3>Today's Reports</h3>
+                    <span id="todayReports">0</span>
+                </div>
+                <div class="stat-card">
+                    <h3>Pending Review</h3>
+                    <span id="pendingReports">0</span>
+                </div>
+            </div>
+
+            <div class="filter-controls">
+                <input type="text" id="searchInput" placeholder="Search by vehicle number, location, or officer...">
+                <select id="statusFilter">
+                    <option value="all">All Reports</option>
+                    <option value="pending">Pending</option>
+                    <option value="reviewed">Reviewed</option>
+                    <option value="resolved">Resolved</option>
+                </select>
+                <select id="reasonFilter">
+                    <option value="all">All Reasons</option>
+                    <option value="no-documents">No Documents</option>
+                    <option value="traffic-violation">Traffic Violation</option>
+                    <option value="illegal-parking">Illegal Parking</option>
+                    <option value="accident">Accident</option>
+                    <option value="other">Other</option>
+                </select>
+                <input type="date" id="dateFromFilter" placeholder="From Date">
+                <input type="date" id="dateToFilter" placeholder="To Date">
+                <button onclick="applyFilters()">Filter</button>
+                <button onclick="clearFilters()">Clear</button>
+                <button onclick="openPaymentTracker()" class="payment-tracker-btn">💰 Payment Tracking</button>
+                <button onclick="exportReports()">Export CSV</button>
+            </div>
+        </div>
+
+        <div class="reports-container">
+            <div id="reportsList" class="reports-list">
+                <!-- Reports will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Detail Modal -->
+    <div id="reportModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="reportDetails"></div>
+        </div>
+    </div>
+
+    <!-- Payment Tracking Modal -->
+    <div id="paymentTrackerModal" class="modal">
+        <div class="modal-content payment-tracker-modal">
+            <span class="close" onclick="closePaymentTracker()">&times;</span>
+            <h2>💰 Payment Tracking</h2>
+            
+            <!-- Vehicle Search Section -->
+            <div class="vehicle-search-section">
+                <h3>Search Vehicle Payment History</h3>
+                <div class="search-input-group">
+                    <input type="text" id="vehicleSearchInput" placeholder="Enter vehicle number (e.g., MH12AB1234)" onkeyup="searchVehiclePayments()">
+                    <button onclick="searchVehiclePayments()" class="search-btn">🔍 Search</button>
+                </div>
+                
+                <!-- Payment History Display -->
+                <div id="paymentHistoryDisplay" class="payment-history-display" style="display: none;">
+                    <!-- Payment history will be displayed here -->
+                </div>
+            </div>
+
+            <!-- Add New Payment Section -->
+            <div class="add-payment-section">
+                <h3>Record New Payment</h3>
+                <form id="quickPaymentForm">
+                    <div class="payment-form-grid">
+                        <div class="input-group">
+                            <label for="paymentVehicleNumber">Vehicle Number *</label>
+                            <input type="text" id="paymentVehicleNumber" placeholder="e.g., MH12AB1234" required>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="paymentMobileNumber">Mobile Number *</label>
+                            <input type="tel" id="paymentMobileNumber" placeholder="e.g., 9876543210" required>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="paymentOwnerName">Owner Name</label>
+                            <input type="text" id="paymentOwnerName" placeholder="Vehicle owner name">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="paymentAmount">Payment Amount (₹) *</label>
+                            <input type="number" id="paymentAmount" placeholder="0.00" step="0.01" required>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="paymentType">Payment Type</label>
+                            <select id="paymentType">
+                                <option value="fine">Fine Payment</option>
+                                <option value="penalty">Penalty</option>
+                                <option value="release">Release Fee</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="paymentMethod">Payment Method</label>
+                            <select id="paymentMethod">
+                                <option value="cash">Cash</option>
+                                <option value="online">Online Transfer</option>
+                                <option value="card">Card Payment</option>
+                                <option value="cheque">Cheque</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Payment Screenshot Upload -->
+                    <div class="payment-screenshot-section">
+                        <label>Payment Screenshot *</label>
+                        <div class="screenshot-upload-area" onclick="document.getElementById('paymentScreenshotInput').click()">
+                            <div class="upload-placeholder">
+                                <span class="upload-icon">📷</span>
+                                <p>Click to upload payment screenshot</p>
+                                <small>Supports JPG, PNG files</small>
+                            </div>
+                            <input type="file" id="paymentScreenshotInput" accept="image/*" style="display: none;" onchange="handlePaymentScreenshot(event)">
+                        </div>
+                        <div id="screenshotPreviewArea" class="screenshot-preview-area" style="display: none;">
+                            <!-- Screenshot preview will appear here -->
+                        </div>
+                    </div>
+                    
+                    <div class="payment-form-actions">
+                        <button type="submit" class="save-payment-btn">💾 Save Payment</button>
+                        <button type="button" onclick="clearPaymentForm()" class="clear-payment-btn">🗑️ Clear Form</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="qrcode.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

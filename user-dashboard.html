@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="apple-touch-icon" href="logo.png">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#667eea">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <div class="header-left">
+                <img src="logo.png" alt="Logo" class="header-logo">
+                <h1>Car Seizure Report</h1>
+            </div>
+            <div class="user-info">
+                <span id="userNameDisplay"></span>
+                <button onclick="logout()" class="logout-btn">Logout</button>
+            </div>
+        </header>
+
+        <div class="form-container">
+            <form id="seizureForm" enctype="multipart/form-data">
+                <div class="form-section">
+                    <h3>Vehicle Information</h3>
+                    
+                    <div class="input-group">
+                        <label for="vehicleNumber">Vehicle Number</label>
+                        <input type="text" id="vehicleNumber" placeholder="e.g., MH12AB1234" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="vehicleType">Vehicle Type</label>
+                        <select id="vehicleType" required>
+                            <option value="">Select Vehicle Type</option>
+                            <option value="car">Car</option>
+                            <option value="motorcycle">Motorcycle</option>
+                            <option value="truck">Truck</option>
+                            <option value="bus">Bus</option>
+                            <option value="auto">Auto Rickshaw</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="vehicleMake">Make & Model</label>
+                        <input type="text" id="vehicleMake" placeholder="e.g., Maruti Swift" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="vehicleColor">Color</label>
+                        <input type="text" id="vehicleColor" placeholder="e.g., White" required>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Seizure Details</h3>
+                    
+                    <div class="input-group">
+                        <label for="seizureLocation">Location</label>
+                        <div class="location-input-group">
+                            <input type="text" id="seizureLocation" placeholder="Seizure location" required>
+                            <button type="button" id="getLocationBtn" class="location-btn">📍 Get GPS</button>
+                        </div>
+                        <div id="coordinates" class="coordinates-display"></div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="seizureReason">Reason for Seizure</label>
+                        <select id="seizureReason" required>
+                            <option value="">Select Reason</option>
+                            <option value="no-documents">No Valid Documents</option>
+                            <option value="traffic-violation">Traffic Violation</option>
+                            <option value="illegal-parking">Illegal Parking</option>
+                            <option value="accident">Accident Related</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="additionalNotes">Additional Notes</label>
+                        <textarea id="additionalNotes" rows="3" placeholder="Any additional information..."></textarea>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Photo Evidence & Documents</h3>
+                    
+                    <div class="photo-upload">
+                        <input type="file" id="vehiclePhoto" accept="image/*" capture="camera" required>
+                        <label for="vehiclePhoto" class="photo-label">
+                            <div class="photo-placeholder">
+                                <span>📷</span>
+                                <p>Take Vehicle Photo</p>
+                            </div>
+                        </label>
+                        <div id="photoPreview" class="photo-preview"></div>
+                    </div>
+
+                    <div class="document-upload">
+                        <h4>Additional Documents (Optional)</h4>
+                        <div class="document-types">
+                            <div class="doc-upload-item">
+                                <label for="rcDocument">Registration Certificate (RC)</label>
+                                <input type="file" id="rcDocument" accept="image/*,.pdf">
+                                <div id="rcPreview" class="doc-preview"></div>
+                            </div>
+                            <div class="doc-upload-item">
+                                <label for="licenseDocument">Driving License</label>
+                                <input type="file" id="licenseDocument" accept="image/*,.pdf">
+                                <div id="licensePreview" class="doc-preview"></div>
+                            </div>
+                            <div class="doc-upload-item">
+                                <label for="otherDocument">Other Document</label>
+                                <input type="file" id="otherDocument" accept="image/*,.pdf">
+                                <div id="otherPreview" class="doc-preview"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">Submit Report</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="qrcode.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

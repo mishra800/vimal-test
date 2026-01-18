@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Configuration</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="apple-touch-icon" href="logo.png">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#667eea">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <div class="header-left">
+                <img src="logo.png" alt="Logo" class="header-logo">
+                <h1>System Configuration</h1>
+            </div>
+            <div class="user-info">
+                <button onclick="window.location.href='admin-dashboard.html'" class="back-btn">← Back</button>
+                <button onclick="logout()" class="logout-btn">Logout</button>
+            </div>
+        </header>
+
+        <div class="config-container">
+            <!-- General Settings -->
+            <div class="config-section">
+                <h3>General Settings</h3>
+                <div class="config-grid">
+                    <div class="config-item">
+                        <label for="systemName">System Name</label>
+                        <input type="text" id="systemName" value="Car Seizure Management System">
+                    </div>
+                    <div class="config-item">
+                        <label for="organizationName">Organization Name</label>
+                        <input type="text" id="organizationName" value="Traffic Police Department">
+                    </div>
+                    <div class="config-item">
+                        <label for="contactEmail">Contact Email</label>
+                        <input type="email" id="contactEmail" value="admin@traffic.gov">
+                    </div>
+                    <div class="config-item">
+                        <label for="timezone">Timezone</label>
+                        <select id="timezone">
+                            <option value="Asia/Kolkata">Asia/Kolkata (IST)</option>
+                            <option value="UTC">UTC</option>
+                            <option value="America/New_York">America/New_York (EST)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seizure Configuration -->
+            <div class="config-section">
+                <h3>Seizure Configuration</h3>
+                <div class="config-subsection">
+                    <h4>Vehicle Types</h4>
+                    <div class="list-manager">
+                        <div class="list-items" id="vehicleTypesList">
+                            <!-- Vehicle types will be loaded here -->
+                        </div>
+                        <div class="add-item">
+                            <input type="text" id="newVehicleType" placeholder="Add vehicle type">
+                            <button onclick="addVehicleType()">Add</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="config-subsection">
+                    <h4>Seizure Reasons</h4>
+                    <div class="list-manager">
+                        <div class="list-items" id="seizureReasonsList">
+                            <!-- Seizure reasons will be loaded here -->
+                        </div>
+                        <div class="add-item">
+                            <input type="text" id="newSeizureReason" placeholder="Add seizure reason">
+                            <button onclick="addSeizureReason()">Add</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notification Settings -->
+            <div class="config-section">
+                <h3>Notification Settings</h3>
+                <div class="config-grid">
+                    <div class="config-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="emailNotifications" checked>
+                            Enable Email Notifications
+                        </label>
+                    </div>
+                    <div class="config-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="smsNotifications">
+                            Enable SMS Notifications
+                        </label>
+                    </div>
+                    <div class="config-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="pushNotifications" checked>
+                            Enable Push Notifications
+                        </label>
+                    </div>
+                    <div class="config-item">
+                        <label for="notificationFrequency">Notification Frequency</label>
+                        <select id="notificationFrequency">
+                            <option value="immediate">Immediate</option>
+                            <option value="hourly">Hourly</option>
+                            <option value="daily">Daily</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Settings -->
+            <div class="config-section">
+                <h3>Security Settings</h3>
+                <div class="config-grid">
+                    <div class="config-item">
+                        <label for="sessionTimeout">Session Timeout (minutes)</label>
+                        <input type="number" id="sessionTimeout" value="60" min="15" max="480">
+                    </div>
+                    <div class="config-item">
+                        <label for="passwordMinLength">Minimum Password Length</label>
+                        <input type="number" id="passwordMinLength" value="6" min="4" max="20">
+                    </div>
+                    <div class="config-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="requirePasswordChange">
+                            Require Password Change Every 90 Days
+                        </label>
+                    </div>
+                    <div class="config-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="enableAuditLog" checked>
+                            Enable Audit Logging
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Management -->
+            <div class="config-section">
+                <h3>Data Management</h3>
+                <div class="config-grid">
+                    <div class="config-item">
+                        <label for="dataRetention">Data Retention Period (days)</label>
+                        <input type="number" id="dataRetention" value="365" min="30">
+                    </div>
+                    <div class="config-item">
+                        <label for="backupFrequency">Backup Frequency</label>
+                        <select id="backupFrequency">
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+                    <div class="config-item">
+                        <button onclick="exportData()" class="export-btn">Export All Data</button>
+                    </div>
+                    <div class="config-item">
+                        <button onclick="importData()" class="import-btn">Import Data</button>
+                        <input type="file" id="importFile" style="display: none;" accept=".json">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Save Configuration -->
+            <div class="config-actions">
+                <button onclick="saveConfiguration()" class="save-config-btn">Save Configuration</button>
+                <button onclick="resetConfiguration()" class="reset-config-btn">Reset to Defaults</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
