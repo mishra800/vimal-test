@@ -39,7 +39,35 @@ npm install -g cordova
 cordova create myapp com.example.myapp MyApp
 # Copy your files to www/ folder
 cordova platform add android ios
+
+# IMPORTANT: Add plugins for mobile functionality
+cordova plugin add cordova-plugin-geolocation  # For GPS
+cordova plugin add cordova-plugin-camera       # For Camera
+
 cordova build
+```
+
+**Mobile Plugins Configuration for Cordova:**
+Add to `config.xml`:
+```xml
+<!-- GPS Permissions -->
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+<!-- Camera Permissions -->
+<uses-permission android:name="android.permission.CAMERA" />
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+<!-- iOS Permissions -->
+<edit-config target="NSLocationWhenInUseUsageDescription" file="*-Info.plist" mode="merge">
+    <string>This app needs location access to record seizure locations.</string>
+</edit-config>
+<edit-config target="NSCameraUsageDescription" file="*-Info.plist" mode="merge">
+    <string>This app needs camera access to capture vehicle and document photos.</string>
+</edit-config>
+<edit-config target="NSPhotoLibraryUsageDescription" file="*-Info.plist" mode="merge">
+    <string>This app needs photo library access to select images.</string>
+</edit-config>
 ```
 
 ## 3. Capacitor (by Ionic)

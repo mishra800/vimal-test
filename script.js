@@ -1417,62 +1417,208 @@ window.onclick = function(event) {
 }
 // Enhanced Features Implementation
 
-// GPS Location Functionality
+// Enhanced GPS Location Functionality for Mobile Apps
 function initGPSLocation() {
     const getLocationBtn = document.getElementById('getLocationBtn');
     if (getLocationBtn) {
         getLocationBtn.addEventListener('click', getCurrentLocation);
+        
+        // Add global function exposure for mobile apps
+        window.getCurrentLocation = getCurrentLocation;
+        
+        console.log('GPS functionality initialized for mobile app');
     }
 }
 
 function getCurrentLocation() {
     const coordinatesDiv = document.getElementById('coordinates');
     const locationInput = document.getElementById('seizureLocation');
+    const locationBtn = document.getElementById('getLocationBtn');
     
-    if (!navigator.geolocation) {
-        showNotification('Geolocation is not supported by this browser', 'error');
+    console.log('GPS button clicked - starting location request');
+    
+    // Show loading state
+    if (coordinatesDiv) coordinatesDiv.innerHTML = '🔄 Getting location...';
+    if (locationBtn) {
+        locationBtn.disabled = true;
+        locationBtn.innerHTML = '🔄 Getting GPS...';
+    }
+    
+    // Check for different geolocation APIs (web, Cordova, etc.)
+    const geolocationAPI = getGeolocationAPI();
+    
+    if (!geolocationAPI) {
+        handleLocationError('Geolocation is not supported on this device');
         return;
     }
     
-    coordinatesDiv.innerHTML = 'Getting location...';
+    console.log('Using geolocation API:', geolocationAPI.name);
     
-    navigator.geolocation.getCurrentPosition(
+    // Enhanced options for mobile apps
+    const options = {
+        enableHighAccuracy: true,
+        timeout: 30000, // Increased timeout for mobile
+        maximumAge: 60000 // 1 minute cache
+    };
+    
+    geolocationAPI.getCurrentPosition(
         function(position) {
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
-            
-            coordinatesDiv.innerHTML = `📍 Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}`;
-            
-            // Try to get address from coordinates (reverse geocoding)
-            reverseGeocode(lat, lng, locationInput);
-            
-            // Store coordinates for the report
-            window.currentCoordinates = { lat, lng };
+            console.log('Location success:', position);
+            handleLocationSuccess(position, coordinatesDiv, locationInput, locationBtn);
         },
         function(error) {
-            coordinatesDiv.innerHTML = 'Unable to get location';
-            showNotification('Error getting location: ' + error.message, 'error');
+            console.error('Location error:', error);
+            handleLocationError(error.message || 'Unable to get location', coordinatesDiv, locationBtn);
         },
-        {
-            enableHighAccuracy: true,
-            timeout: 10000,
-            maximumAge: 300000
-        }
+        options
     );
 }
 
+function getGeolocationAPI() {
+    // Check for Cordova geolocation plugin first
+    if (window.cordova && navigator.geolocation) {
+        return {
+            name: 'Cordova Geolocation',
+            getCurrentPosition: navigator.geolocation.getCurrentPosition.bind(navigator.geolocation)
+        };
+    }
+    
+    // Check for standard web geolocation
+    if (navigator.geolocation) {
+        return {
+            name: 'Web Geolocation API',
+            getCurrentPosition: navigator.geolocation.getCurrentPosition.bind(navigator.geolocation)
+        };
+    }
+    
+    // Check for legacy geolocation
+    if (window.navigator && window.navigator.geolocation) {
+        return {
+            name: 'Legacy Geolocation',
+            getCurrentPosition: window.navigator.geolocation.getCurrentPosition.bind(window.navigator.geolocation)
+        };
+    }
+    
+    return null;
+}
+
+function handleLocationSuccess(position, coordinatesDiv, locationInput, locationBtn) {
+    const lat = position.coords.latitude;
+    const lng = position.coords.longitude;
+    const accuracy = position.coords.accuracy;
+    
+    console.log(`Location obtained: ${lat}, ${lng} (accuracy: ${accuracy}m)`);
+    
+    // Update UI
+    if (coordinatesDiv) {
+        coordinatesDiv.innerHTML = `📍 Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)} (±${Math.round(accuracy)}m)`;
+    }
+    
+    // Reset button
+    if (locationBtn) {
+        locationBtn.disabled = false;
+        locationBtn.innerHTML = '📍 GPS';
+    }
+    
+    // Try to get address from coordinates
+    if (locationInput) {
+        reverseGeocode(lat, lng, locationInput);
+    }
+    
+    // Store coordinates for the report
+    window.currentCoordinates = { lat, lng, accuracy };
+    
+    showNotification('Location obtained successfully!', 'success');
+}
+
+function handleLocationError(errorMessage, coordinatesDiv, locationBtn) {
+    console.error('Location error:', errorMessage);
+    
+    // Update UI
+    if (coordinatesDiv) {
+        coordinatesDiv.innerHTML = '❌ Unable to get location';
+    }
+    
+    // Reset button
+    if (locationBtn) {
+        locationBtn.disabled = false;
+        locationBtn.innerHTML = '📍 GPS';
+    }
+    
+    // Show user-friendly error message
+    let userMessage = 'Unable to get your location. ';
+    
+    if (errorMessage.includes('denied') || errorMessage.includes('permission')) {
+        userMessage += 'Please enable location permissions for this app.';
+    } else if (errorMessage.includes('timeout')) {
+        userMessage += 'Location request timed out. Please try again.';
+    } else if (errorMessage.includes('unavailable')) {
+        userMessage += 'Location service is unavailable. Please check your GPS settings.';
+    } else {
+        userMessage += 'Please enter the location manually.';
+    }
+    
+    showNotification(userMessage, 'error');
+}
+
 function reverseGeocode(lat, lng, locationInput) {
-    // Using a simple reverse geocoding service
-    fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`)
-        .then(response => response.json())
+    console.log('Starting reverse geocoding for:', lat, lng);
+    
+    // Try multiple geocoding services for better reliability
+    const geocodingServices = [
+        {
+            name: 'BigDataCloud',
+            url: `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`,
+            parser: (data) => {
+                if (data.locality || data.city) {
+                    return `${data.locality || data.city}, ${data.principalSubdivision || ''}, ${data.countryName || ''}`;
+                }
+                return null;
+            }
+        },
+        {
+            name: 'OpenStreetMap',
+            url: `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`,
+            parser: (data) => {
+                if (data.display_name) {
+                    return data.display_name;
+                }
+                return null;
+            }
+        }
+    ];
+    
+    // Try each service
+    tryGeocoding(geocodingServices, 0, locationInput);
+}
+
+function tryGeocoding(services, index, locationInput) {
+    if (index >= services.length) {
+        console.log('All geocoding services failed');
+        return;
+    }
+    
+    const service = services[index];
+    console.log(`Trying geocoding service: ${service.name}`);
+    
+    fetch(service.url)
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return response.json();
+        })
         .then(data => {
-            if (data.locality || data.city) {
-                const address = `${data.locality || data.city}, ${data.principalSubdivision || ''}, ${data.countryName || ''}`;
+            const address = service.parser(data);
+            if (address && locationInput) {
                 locationInput.value = address;
+                console.log(`Geocoding success with ${service.name}:`, address);
+            } else {
+                throw new Error('No address found');
             }
         })
         .catch(error => {
-            console.log('Reverse geocoding failed:', error);
+            console.log(`Geocoding failed with ${service.name}:`, error);
+            // Try next service
+            tryGeocoding(services, index + 1, locationInput);
         });
 }
 
@@ -3156,39 +3302,152 @@ if (window.location.pathname.includes('welcome.html')) {
 // Camera variables are already declared at the top of the file
 // Removed duplicate declarations to prevent syntax errors
 
-// Camera functionality
+// Enhanced Camera functionality for Mobile Apps
 async function openCamera() {
     const cameraPreview = document.getElementById('cameraPreview');
     const video = document.getElementById('cameraVideo');
+    
+    console.log('Opening camera - checking available APIs');
     
     try {
         // Show loading state
         showCameraLoading();
         
-        // Request camera permission and stream
-        const constraints = {
-            video: {
-                facingMode: 'environment', // Use back camera on mobile
-                width: { ideal: 1920 },
-                height: { ideal: 1080 }
-            }
-        };
+        // Check for different camera APIs (Cordova, Web, etc.)
+        const cameraAPI = getCameraAPI();
         
-        cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+        if (!cameraAPI) {
+            throw new Error('No camera API available');
+        }
         
-        // Hide loading and show camera
-        hideCameraLoading();
-        cameraPreview.style.display = 'block';
-        video.srcObject = cameraStream;
+        console.log('Using camera API:', cameraAPI.name);
         
-        // Log camera access
-        console.log('Camera opened successfully');
+        // Use the appropriate camera API
+        if (cameraAPI.type === 'cordova') {
+            await openCordovaCamera();
+        } else if (cameraAPI.type === 'web') {
+            await openWebCamera(cameraPreview, video);
+        } else {
+            throw new Error('Unsupported camera API');
+        }
         
     } catch (error) {
         console.error('Camera access error:', error);
         hideCameraLoading();
         showCameraError(error);
     }
+}
+
+function getCameraAPI() {
+    // Check for Cordova Camera plugin
+    if (window.cordova && navigator.camera) {
+        return {
+            name: 'Cordova Camera Plugin',
+            type: 'cordova'
+        };
+    }
+    
+    // Check for Cordova Media Capture
+    if (window.cordova && navigator.device && navigator.device.capture) {
+        return {
+            name: 'Cordova Media Capture',
+            type: 'cordova-capture'
+        };
+    }
+    
+    // Check for standard web camera API
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        return {
+            name: 'Web MediaDevices API',
+            type: 'web'
+        };
+    }
+    
+    // Check for legacy web camera API
+    if (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia) {
+        return {
+            name: 'Legacy getUserMedia',
+            type: 'web-legacy'
+        };
+    }
+    
+    return null;
+}
+
+async function openCordovaCamera() {
+    console.log('Using Cordova camera plugin');
+    
+    return new Promise((resolve, reject) => {
+        const options = {
+            quality: 75,
+            destinationType: Camera.DestinationType.DATA_URL,
+            sourceType: Camera.PictureSourceType.CAMERA,
+            encodingType: Camera.EncodingType.JPEG,
+            targetWidth: 1920,
+            targetHeight: 1080,
+            mediaType: Camera.MediaType.PICTURE,
+            allowEdit: false,
+            correctOrientation: true,
+            saveToPhotoAlbum: false
+        };
+        
+        navigator.camera.getPicture(
+            function(imageData) {
+                console.log('Cordova camera success');
+                const photoData = "data:image/jpeg;base64," + imageData;
+                displayCapturedPhoto(photoData);
+                hideCameraLoading();
+                resolve();
+            },
+            function(error) {
+                console.error('Cordova camera error:', error);
+                reject(new Error('Camera capture failed: ' + error));
+            },
+            options
+        );
+    });
+}
+
+async function openWebCamera(cameraPreview, video) {
+    console.log('Using web camera API');
+    
+    // Request camera permission and stream
+    const constraints = {
+        video: {
+            facingMode: 'environment', // Use back camera on mobile
+            width: { ideal: 1920, max: 1920 },
+            height: { ideal: 1080, max: 1080 }
+        }
+    };
+    
+    // Try different getUserMedia implementations
+    const getUserMedia = navigator.mediaDevices?.getUserMedia ||
+                        navigator.getUserMedia ||
+                        navigator.webkitGetUserMedia ||
+                        navigator.mozGetUserMedia;
+    
+    if (!getUserMedia) {
+        throw new Error('Camera API not supported');
+    }
+    
+    let stream;
+    if (navigator.mediaDevices?.getUserMedia) {
+        stream = await navigator.mediaDevices.getUserMedia(constraints);
+    } else {
+        // Legacy API
+        stream = await new Promise((resolve, reject) => {
+            getUserMedia.call(navigator, constraints, resolve, reject);
+        });
+    }
+    
+    cameraStream = stream;
+    
+    // Hide loading and show camera
+    hideCameraLoading();
+    cameraPreview.style.display = 'block';
+    video.srcObject = stream;
+    
+    console.log('Web camera opened successfully');
 }
 
 function showCameraLoading() {
@@ -3251,19 +3510,41 @@ async function requestCameraPermission() {
 }
 
 function capturePhoto() {
+    console.log('Capturing photo');
+    
+    // Check if we're using Cordova camera (photo already captured)
+    if (window.cordova && navigator.camera && !cameraStream) {
+        console.log('Photo already captured via Cordova camera');
+        return;
+    }
+    
+    // Web camera capture
     const video = document.getElementById('cameraVideo');
+    
+    if (!video || !video.srcObject) {
+        console.error('No video stream available for capture');
+        showNotification('Camera not ready. Please try opening camera again.', 'error');
+        return;
+    }
+    
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
     
     // Set canvas dimensions to video dimensions
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+    canvas.width = video.videoWidth || 1920;
+    canvas.height = video.videoHeight || 1080;
     
     // Draw video frame to canvas
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
     
     // Convert to blob and display
     canvas.toBlob((blob) => {
+        if (!blob) {
+            console.error('Failed to create photo blob');
+            showNotification('Failed to capture photo. Please try again.', 'error');
+            return;
+        }
+        
         const reader = new FileReader();
         reader.onload = function(e) {
             capturedPhotoData = e.target.result;
@@ -3347,26 +3628,93 @@ function handlePhotoSelection(event) {
     reader.readAsDataURL(file);
 }
 
-// Document camera functions
+// Enhanced document camera functions for mobile apps
 async function openDocCamera(docType) {
     currentDocumentType = docType;
+    console.log('Opening document camera for:', docType);
     
     try {
-        const constraints = {
-            video: {
-                facingMode: 'environment',
-                width: { ideal: 1280 },
-                height: { ideal: 720 }
-            }
-        };
+        const cameraAPI = getCameraAPI();
         
-        const stream = await navigator.mediaDevices.getUserMedia(constraints);
-        showDocumentCameraModal(stream, docType);
+        if (!cameraAPI) {
+            throw new Error('Camera not available');
+        }
+        
+        if (cameraAPI.type === 'cordova') {
+            await openCordovaDocumentCamera(docType);
+        } else {
+            await openWebDocumentCamera(docType);
+        }
         
     } catch (error) {
         console.error('Document camera error:', error);
-        showNotification('Unable to access camera for document capture', 'error');
+        showNotification('Unable to access camera for document capture. Please use gallery option.', 'error');
     }
+}
+
+async function openCordovaDocumentCamera(docType) {
+    console.log('Using Cordova camera for document:', docType);
+    
+    return new Promise((resolve, reject) => {
+        const options = {
+            quality: 85,
+            destinationType: Camera.DestinationType.DATA_URL,
+            sourceType: Camera.PictureSourceType.CAMERA,
+            encodingType: Camera.EncodingType.JPEG,
+            targetWidth: 1280,
+            targetHeight: 720,
+            mediaType: Camera.MediaType.PICTURE,
+            allowEdit: false,
+            correctOrientation: true,
+            saveToPhotoAlbum: false
+        };
+        
+        navigator.camera.getPicture(
+            function(imageData) {
+                console.log('Cordova document camera success');
+                const photoData = "data:image/jpeg;base64," + imageData;
+                handleDocumentCapture(docType, photoData);
+                resolve();
+            },
+            function(error) {
+                console.error('Cordova document camera error:', error);
+                reject(new Error('Document camera failed: ' + error));
+            },
+            options
+        );
+    });
+}
+
+async function openWebDocumentCamera(docType) {
+    console.log('Using web camera for document:', docType);
+    
+    const constraints = {
+        video: {
+            facingMode: 'environment',
+            width: { ideal: 1280, max: 1280 },
+            height: { ideal: 720, max: 720 }
+        }
+    };
+    
+    let stream;
+    if (navigator.mediaDevices?.getUserMedia) {
+        stream = await navigator.mediaDevices.getUserMedia(constraints);
+    } else {
+        // Legacy API fallback
+        const getUserMedia = navigator.getUserMedia ||
+                            navigator.webkitGetUserMedia ||
+                            navigator.mozGetUserMedia;
+        
+        if (!getUserMedia) {
+            throw new Error('Camera API not supported');
+        }
+        
+        stream = await new Promise((resolve, reject) => {
+            getUserMedia.call(navigator, constraints, resolve, reject);
+        });
+    }
+    
+    showDocumentCameraModal(stream, docType);
 }
 
 function showDocumentCameraModal(stream, docType) {
@@ -3604,19 +3952,51 @@ function clearReportForm() {
 
 // Initialize camera functionality
 function initCameraFeatures() {
-    // Check if camera is supported
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        console.warn('Camera not supported on this browser');
+    console.log('Initializing camera features for mobile app');
+    
+    // Check available camera APIs
+    const cameraAPI = getCameraAPI();
+    
+    if (!cameraAPI) {
+        console.warn('No camera API available - hiding camera buttons');
         // Hide camera buttons and show gallery only
         const cameraButtons = document.querySelectorAll('.camera-btn, .doc-camera-btn');
         cameraButtons.forEach(btn => {
             btn.style.display = 'none';
         });
+        
+        // Show message about camera unavailability
+        const cameraSection = document.querySelector('.camera-section');
+        if (cameraSection) {
+            const warningDiv = document.createElement('div');
+            warningDiv.className = 'camera-warning';
+            warningDiv.innerHTML = `
+                <p>📱 Camera not available on this device.</p>
+                <p>Please use the gallery option to select photos.</p>
+            `;
+            cameraSection.insertBefore(warningDiv, cameraSection.firstChild);
+        }
         return;
     }
     
+    console.log('Camera API available:', cameraAPI.name);
+    
     // Add event listeners for camera functionality
-    console.log('Camera features initialized');
+    const cameraButtons = document.querySelectorAll('.camera-btn');
+    cameraButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            console.log('Camera button clicked');
+        });
+    });
+    
+    // For Cordova apps, wait for device ready
+    if (window.cordova) {
+        document.addEventListener('deviceready', function() {
+            console.log('Cordova device ready - camera features initialized');
+        }, false);
+    }
+    
+    console.log('Camera features initialized successfully');
 }
 
 // Close camera when page unloads
@@ -3659,6 +4039,10 @@ window.showLogin = showLogin;
 window.switchLoginMethod = switchLoginMethod;
 window.switchSignupMethod = switchSignupMethod;
 window.togglePassword = togglePassword;
+
+// GPS and Location functions
+if (typeof getCurrentLocation !== 'undefined') window.getCurrentLocation = getCurrentLocation;
+if (typeof initGPSLocation !== 'undefined') window.initGPSLocation = initGPSLocation;
 
 // OTP functions
 if (typeof sendOTP !== 'undefined') window.sendOTP = sendOTP;

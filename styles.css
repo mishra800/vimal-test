@@ -3505,9 +3505,38 @@ textarea {
         background: rgba(255, 255, 255, 0.05);
     }
 }
-/* Modern Camera Integration Styles */
+/* Camera Help Text */
+.camera-help {
+    margin-top: var(--space-3);
+    padding: var(--space-3);
+    background: rgba(102, 126, 234, 0.1);
+    border-radius: var(--radius-md);
+    border-left: 3px solid var(--primary-color);
+}
 
-/* Camera Section */
+.camera-help small {
+    color: var(--gray-600);
+    font-size: var(--font-size-xs);
+    line-height: 1.4;
+}
+
+/* Camera Warning Message */
+.camera-warning {
+    background: linear-gradient(135deg, var(--warning-light) 0%, #fef3cd 100%);
+    border: 2px solid var(--warning-color);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    margin-bottom: var(--space-4);
+    text-align: center;
+}
+
+.camera-warning p {
+    margin: var(--space-1) 0;
+    color: var(--warning-color);
+    font-weight: 500;
+}
+
+/* Enhanced Camera Section */
 .camera-section {
     margin-bottom: var(--space-8);
     background: linear-gradient(135deg, var(--primary-light) 0%, rgba(102, 126, 234, 0.05) 100%);
