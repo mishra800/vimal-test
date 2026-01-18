@@ -261,38 +261,5 @@
     </div>
 
     <script src="script.js"></script>
-    <script src="web-app-compatibility-check.js"></script>
-    <script>
-        // Additional compatibility checks for index page
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🔍 Index page loaded - running compatibility check...');
-            
-            // Verify all authentication functions are available
-            const authFunctions = ['showSignup', 'showLogin', 'switchLoginMethod', 'switchSignupMethod', 'togglePassword'];
-            const missingFunctions = authFunctions.filter(func => typeof window[func] !== 'function');
-            
-            if (missingFunctions.length > 0) {
-                console.error('❌ Missing authentication functions:', missingFunctions);
-            } else {
-                console.log('✅ All authentication functions available');
-            }
-            
-            // Test localStorage
-            try {
-                localStorage.setItem('test', 'value');
-                localStorage.removeItem('test');
-                console.log('✅ LocalStorage working');
-            } catch (error) {
-                console.error('❌ LocalStorage failed:', error);
-            }
-            
-            // Check for HTTPS (required for GPS/Camera in web)
-            if (location.protocol === 'https:' || location.hostname === 'localhost') {
-                console.log('✅ Secure context available for GPS/Camera');
-            } else {
-                console.warn('⚠️ HTTPS required for GPS/Camera functionality');
-            }
-        });
-    </script>
 </body>
 </html>

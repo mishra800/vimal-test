@@ -199,55 +199,5 @@
 
     <script src="qrcode.min.js"></script>
     <script src="script.js"></script>
-    <script src="web-app-compatibility-check.js"></script>
-    <script>
-        // Additional compatibility checks for user dashboard
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🔍 User dashboard loaded - running compatibility check...');
-            
-            // Verify GPS functions
-            const gpsFunctions = ['getCurrentLocation', 'initGPSLocation'];
-            const missingGPS = gpsFunctions.filter(func => typeof window[func] !== 'function');
-            
-            if (missingGPS.length > 0) {
-                console.error('❌ Missing GPS functions:', missingGPS);
-            } else {
-                console.log('✅ GPS functions available');
-            }
-            
-            // Verify camera functions
-            const cameraFunctions = ['openCamera', 'capturePhoto', 'closeCamera', 'openDocCamera'];
-            const missingCamera = cameraFunctions.filter(func => typeof window[func] !== 'function');
-            
-            if (missingCamera.length > 0) {
-                console.error('❌ Missing camera functions:', missingCamera);
-            } else {
-                console.log('✅ Camera functions available');
-            }
-            
-            // Check GPS API availability
-            if (navigator.geolocation) {
-                console.log('✅ Geolocation API available');
-            } else {
-                console.error('❌ Geolocation API not available');
-            }
-            
-            // Check Camera API availability
-            if (window.cordova && navigator.camera) {
-                console.log('✅ Cordova Camera Plugin available');
-            } else if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                console.log('✅ Web Camera API available');
-            } else {
-                console.error('❌ No camera API available');
-            }
-            
-            // Test form submission function
-            if (typeof window.submitSeizureReport === 'function') {
-                console.log('✅ Form submission function available');
-            } else {
-                console.error('❌ Form submission function missing');
-            }
-        });
-    </script>
 </body>
 </html>

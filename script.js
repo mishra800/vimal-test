@@ -11,26 +11,17 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-// Script loading verification
-console.log('🚀 Car Seizure Management System - Script Loading Started');
-console.log('📅 Script loaded at:', new Date().toISOString());
-
 // Enhanced Authentication System
 
 // Global error handler
 window.addEventListener('error', function(e) {
     console.error('Global error caught:', e.error);
-    console.error('Error message:', e.message);
-    console.error('Error filename:', e.filename);
-    console.error('Error line:', e.lineno);
 });
 
 // Unhandled promise rejection handler
 window.addEventListener('unhandledrejection', function(e) {
     console.error('Unhandled promise rejection:', e.reason);
 });
-
-console.log('✅ Error handlers initialized');
 
 // Current authentication state
 let currentLoginMethod = 'email';
@@ -45,15 +36,6 @@ let currentDocumentType = null;
 
 // Ensure DOM is loaded before executing functions
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded, initializing authentication system');
-    
-    // Test if elements exist
-    const loginForm = document.getElementById('loginForm');
-    const signupForm = document.getElementById('signupForm');
-    
-    console.log('Login form found:', !!loginForm);
-    console.log('Signup form found:', !!signupForm);
-    
     // Initialize default admin if needed
     createDefaultAdmin();
     
@@ -62,38 +44,28 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function setupEventListeners() {
-    console.log('Setting up event listeners');
-    
     // The form event listeners are already set up in the main DOMContentLoaded handler
     // This function is for any additional setup
-    
-    console.log('Event listeners set up complete');
 }
 
 // Form switching functions
 function showSignup() {
-    console.log('Showing signup form');
     const loginForm = document.getElementById('loginForm');
     const signupForm = document.getElementById('signupForm');
     
     if (loginForm && signupForm) {
         loginForm.classList.add('hidden');
         signupForm.classList.remove('hidden');
-    } else {
-        console.error('Login or signup form not found');
     }
 }
 
 function showLogin() {
-    console.log('Showing login form');
     const loginForm = document.getElementById('loginForm');
     const signupForm = document.getElementById('signupForm');
     
     if (loginForm && signupForm) {
         signupForm.classList.add('hidden');
         loginForm.classList.remove('hidden');
-    } else {
-        console.error('Login or signup form not found');
     }
 }
 
@@ -1425,8 +1397,6 @@ function initGPSLocation() {
         
         // Add global function exposure for mobile apps
         window.getCurrentLocation = getCurrentLocation;
-        
-        console.log('GPS functionality initialized for mobile app');
     }
 }
 
@@ -1434,8 +1404,6 @@ function getCurrentLocation() {
     const coordinatesDiv = document.getElementById('coordinates');
     const locationInput = document.getElementById('seizureLocation');
     const locationBtn = document.getElementById('getLocationBtn');
-    
-    console.log('GPS button clicked - starting location request');
     
     // Show loading state
     if (coordinatesDiv) coordinatesDiv.innerHTML = '🔄 Getting location...';
@@ -1452,25 +1420,19 @@ function getCurrentLocation() {
         return;
     }
     
-    console.log('Using geolocation API:', geolocationAPI.name);
-    
-    // Enhanced options for mobile apps
-    const options = {
-        enableHighAccuracy: true,
-        timeout: 30000, // Increased timeout for mobile
-        maximumAge: 60000 // 1 minute cache
-    };
-    
     geolocationAPI.getCurrentPosition(
         function(position) {
-            console.log('Location success:', position);
             handleLocationSuccess(position, coordinatesDiv, locationInput, locationBtn);
         },
         function(error) {
             console.error('Location error:', error);
             handleLocationError(error.message || 'Unable to get location', coordinatesDiv, locationBtn);
         },
-        options
+        {
+            enableHighAccuracy: true,
+            timeout: 30000, // Increased timeout for mobile
+            maximumAge: 60000 // 1 minute cache
+        }
     );
 }
 
@@ -1506,8 +1468,6 @@ function handleLocationSuccess(position, coordinatesDiv, locationInput, location
     const lat = position.coords.latitude;
     const lng = position.coords.longitude;
     const accuracy = position.coords.accuracy;
-    
-    console.log(`Location obtained: ${lat}, ${lng} (accuracy: ${accuracy}m)`);
     
     // Update UI
     if (coordinatesDiv) {
@@ -1562,8 +1522,6 @@ function handleLocationError(errorMessage, coordinatesDiv, locationBtn) {
 }
 
 function reverseGeocode(lat, lng, locationInput) {
-    console.log('Starting reverse geocoding for:', lat, lng);
-    
     // Try multiple geocoding services for better reliability
     const geocodingServices = [
         {
@@ -1594,12 +1552,10 @@ function reverseGeocode(lat, lng, locationInput) {
 
 function tryGeocoding(services, index, locationInput) {
     if (index >= services.length) {
-        console.log('All geocoding services failed');
         return;
     }
     
     const service = services[index];
-    console.log(`Trying geocoding service: ${service.name}`);
     
     fetch(service.url)
         .then(response => {
@@ -1610,13 +1566,11 @@ function tryGeocoding(services, index, locationInput) {
             const address = service.parser(data);
             if (address && locationInput) {
                 locationInput.value = address;
-                console.log(`Geocoding success with ${service.name}:`, address);
             } else {
                 throw new Error('No address found');
             }
         })
         .catch(error => {
-            console.log(`Geocoding failed with ${service.name}:`, error);
             // Try next service
             tryGeocoding(services, index + 1, locationInput);
         });
@@ -3244,9 +3198,6 @@ function logout() {
     // Clear any temporary data
     sessionStorage.clear();
     
-    // Show logout message
-    console.log('User logged out successfully');
-    
     // Redirect to login page
     window.location.href = 'index.html';
 }
@@ -3307,8 +3258,6 @@ async function openCamera() {
     const cameraPreview = document.getElementById('cameraPreview');
     const video = document.getElementById('cameraVideo');
     
-    console.log('Opening camera - checking available APIs');
-    
     try {
         // Show loading state
         showCameraLoading();
@@ -3319,8 +3268,6 @@ async function openCamera() {
         if (!cameraAPI) {
             throw new Error('No camera API available');
         }
-        
-        console.log('Using camera API:', cameraAPI.name);
         
         // Use the appropriate camera API
         if (cameraAPI.type === 'cordova') {
@@ -3375,8 +3322,6 @@ function getCameraAPI() {
 }
 
 async function openCordovaCamera() {
-    console.log('Using Cordova camera plugin');
-    
     return new Promise((resolve, reject) => {
         const options = {
             quality: 75,
@@ -3393,7 +3338,6 @@ async function openCordovaCamera() {
         
         navigator.camera.getPicture(
             function(imageData) {
-                console.log('Cordova camera success');
                 const photoData = "data:image/jpeg;base64," + imageData;
                 displayCapturedPhoto(photoData);
                 hideCameraLoading();
@@ -3409,8 +3353,6 @@ async function openCordovaCamera() {
 }
 
 async function openWebCamera(cameraPreview, video) {
-    console.log('Using web camera API');
-    
     // Request camera permission and stream
     const constraints = {
         video: {
@@ -3446,8 +3388,6 @@ async function openWebCamera(cameraPreview, video) {
     hideCameraLoading();
     cameraPreview.style.display = 'block';
     video.srcObject = stream;
-    
-    console.log('Web camera opened successfully');
 }
 
 function showCameraLoading() {
@@ -3510,11 +3450,8 @@ async function requestCameraPermission() {
 }
 
 function capturePhoto() {
-    console.log('Capturing photo');
-    
     // Check if we're using Cordova camera (photo already captured)
     if (window.cordova && navigator.camera && !cameraStream) {
-        console.log('Photo already captured via Cordova camera');
         return;
     }
     
@@ -3600,8 +3537,6 @@ function closeCamera() {
     
     // Hide camera preview
     cameraPreview.style.display = 'none';
-    
-    console.log('Camera closed');
 }
 
 // Handle photo selection from gallery
@@ -3631,7 +3566,6 @@ function handlePhotoSelection(event) {
 // Enhanced document camera functions for mobile apps
 async function openDocCamera(docType) {
     currentDocumentType = docType;
-    console.log('Opening document camera for:', docType);
     
     try {
         const cameraAPI = getCameraAPI();
@@ -3653,8 +3587,6 @@ async function openDocCamera(docType) {
 }
 
 async function openCordovaDocumentCamera(docType) {
-    console.log('Using Cordova camera for document:', docType);
-    
     return new Promise((resolve, reject) => {
         const options = {
             quality: 85,
@@ -3671,7 +3603,6 @@ async function openCordovaDocumentCamera(docType) {
         
         navigator.camera.getPicture(
             function(imageData) {
-                console.log('Cordova document camera success');
                 const photoData = "data:image/jpeg;base64," + imageData;
                 handleDocumentCapture(docType, photoData);
                 resolve();
@@ -3686,8 +3617,6 @@ async function openCordovaDocumentCamera(docType) {
 }
 
 async function openWebDocumentCamera(docType) {
-    console.log('Using web camera for document:', docType);
-    
     const constraints = {
         video: {
             facingMode: 'environment',
@@ -3952,13 +3881,10 @@ function clearReportForm() {
 
 // Initialize camera functionality
 function initCameraFeatures() {
-    console.log('Initializing camera features for mobile app');
-    
     // Check available camera APIs
     const cameraAPI = getCameraAPI();
     
     if (!cameraAPI) {
-        console.warn('No camera API available - hiding camera buttons');
         // Hide camera buttons and show gallery only
         const cameraButtons = document.querySelectorAll('.camera-btn, .doc-camera-btn');
         cameraButtons.forEach(btn => {
@@ -3979,24 +3905,20 @@ function initCameraFeatures() {
         return;
     }
     
-    console.log('Camera API available:', cameraAPI.name);
-    
     // Add event listeners for camera functionality
     const cameraButtons = document.querySelectorAll('.camera-btn');
     cameraButtons.forEach(btn => {
         btn.addEventListener('click', function() {
-            console.log('Camera button clicked');
+            // Camera button clicked
         });
     });
     
     // For Cordova apps, wait for device ready
     if (window.cordova) {
         document.addEventListener('deviceready', function() {
-            console.log('Cordova device ready - camera features initialized');
+            // Cordova device ready - camera features initialized
         }, false);
     }
-    
-    console.log('Camera features initialized successfully');
 }
 
 // Close camera when page unloads
@@ -4076,5 +3998,3 @@ if (typeof openPaymentTracker !== 'undefined') window.openPaymentTracker = openP
 
 // User management functions
 if (typeof checkUsernameAvailability !== 'undefined') window.checkUsernameAvailability = checkUsernameAvailability;
-
-console.log('All functions exposed to global scope for onclick handlers');
