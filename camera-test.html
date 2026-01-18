@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera Test - Car Seizure System</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .test-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e1e1e1;
+            border-radius: 8px;
+        }
+        .test-result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <div class="header-left">
+                <img src="logo.png" alt="Logo" class="header-logo">
+                <h1>Camera Integration Test</h1>
+            </div>
+            <div class="user-info">
+                <a href="index.html" class="logout-btn">← Back to Login</a>
+            </div>
+        </div>
+
+        <div class="test-container">
+            <h2>🧪 Camera Functionality Tests</h2>
+            <p>This page helps test camera integration features before using them in the main application.</p>
+
+            <!-- Test 1: Camera Support Detection -->
+            <div class="test-section">
+                <h3>Test 1: Camera Support Detection</h3>
+                <button onclick="testCameraSupport()" class="camera-btn">Check Camera Support</button>
+                <div id="supportResult" class="test-result" style="display: none;"></div>
+            </div>
+
+            <!-- Test 2: Camera Permission -->
+            <div class="test-section">
+                <h3>Test 2: Camera Permission Request</h3>
+                <button onclick="testCameraPermission()" class="camera-btn">Request Camera Permission</button>
+                <div id="permissionResult" class="test-result" style="display: none;"></div>
+            </div>
+
+            <!-- Test 3: Camera Preview -->
+            <div class="test-section">
+                <h3>Test 3: Camera Preview</h3>
+                <button onclick="testCameraPreview()" class="camera-btn">Open Camera Preview</button>
+                <div id="testCameraPreview" class="camera-preview" style="display: none;">
+                    <video id="testVideo" autoplay playsinline></video>
+                    <div class="camera-overlay">
+                        <div class="camera-frame"></div>
+                        <div class="camera-actions">
+                            <button onclick="testCapture()" class="capture-btn">📸</button>
+                            <button onclick="closeTestCamera()" class="close-camera-btn">❌</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="previewResult" class="test-result" style="display: none;"></div>
+            </div>
+
+            <!-- Test 4: Photo Capture -->
+            <div class="test-section">
+                <h3>Test 4: Photo Capture & Preview</h3>
+                <div id="testPhotoPreview" class="photo-preview"></div>
+                <div id="captureResult" class="test-result" style="display: none;"></div>
+            </div>
+
+            <!-- Test 5: File Selection -->
+            <div class="test-section">
+                <h3>Test 5: Gallery File Selection</h3>
+                <input type="file" id="testFileInput" accept="image/*" onchange="testFileSelection(event)" style="display: none;">
+                <button onclick="document.getElementById('testFileInput').click()" class="gallery-btn">🖼️ Choose from Gallery</button>
+                <div id="fileResult" class="test-result" style="display: none;"></div>
+            </div>
+
+            <!-- Test Results Summary -->
+            <div class="test-section">
+                <h3>📊 Test Results Summary</h3>
+                <div id="testSummary">
+                    <p>Run the tests above to see results here.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let testStream = null;
+        let testResults = {};
+
+        function updateSummary() {
+            const summary = document.getElementById('testSummary');
+            const results = Object.entries(testResults);
+            
+            if (results.length === 0) {
+                summary.innerHTML = '<p>Run the tests above to see results here.</p>';
+                return;
+            }
+
+            let html = '<ul>';
+            results.forEach(([test, result]) => {
+                const status = result.success ? '✅' : '❌';
+                html += `<li>${status} ${test}: ${result.message}</li>`;
+            });
+            html += '</ul>';
+            
+            const passedTests = results.filter(([, result]) => result.success).length;
+            const totalTests = results.length;
+            
+            html += `<p><strong>Summary: ${passedTests}/${totalTests} tests passed</strong></p>`;
+            
+            if (passedTests === totalTests && totalTests >= 4) {
+                html += '<p class="success">🎉 All tests passed! Camera integration is working correctly.</p>';
+            }
+            
+            summary.innerHTML = html;
+        }
+
+        function showResult(elementId, success, message) {
+            const element = document.getElementById(elementId);
+            element.className = `test-result ${success ? 'success' : 'error'}`;
+            element.textContent = message;
+            element.style.display = 'block';
+        }
+
+        function testCameraSupport() {
+            const hasCamera = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+            const message = hasCamera ? 
+                'Camera API is supported in this browser' : 
+                'Camera API is not supported in this browser';
+            
+            showResult('supportResult', hasCamera, message);
+            testResults['Camera Support'] = { success: hasCamera, message };
+            updateSummary();
+        }
+
+        async function testCameraPermission() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                stream.getTracks().forEach(track => track.stop()); // Stop immediately
+                
+                showResult('permissionResult', true, 'Camera permission granted successfully');
+                testResults['Camera Permission'] = { success: true, message: 'Permission granted' };
+            } catch (error) {
+                let message = 'Permission denied';
+                if (error.name === 'NotFoundError') message = 'No camera found';
+                if (error.name === 'NotSupportedError') message = 'Camera not supported';
+                
+                showResult('permissionResult', false, `Camera permission failed: ${message}`);
+                testResults['Camera Permission'] = { success: false, message };
+            }
+            updateSummary();
+        }
+
+        async function testCameraPreview() {
+            try {
+                testStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        facingMode: 'environment',
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    } 
+                });
+                
+                const video = document.getElementById('testVideo');
+                video.srcObject = testStream;
+                
+                document.getElementById('testCameraPreview').style.display = 'block';
+                showResult('previewResult', true, 'Camera preview opened successfully');
+                testResults['Camera Preview'] = { success: true, message: 'Preview working' };
+            } catch (error) {
+                showResult('previewResult', false, `Camera preview failed: ${error.message}`);
+                testResults['Camera Preview'] = { success: false, message: error.message };
+            }
+            updateSummary();
+        }
+
+        function testCapture() {
+            const video = document.getElementById('testVideo');
+            
+            if (!video.srcObject) {
+                showResult('captureResult', false, 'No video stream available for capture');
+                return;
+            }
+
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0);
+            
+            canvas.toBlob((blob) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('testPhotoPreview');
+                    preview.innerHTML = `
+                        <img src="${e.target.result}" alt="Test Capture" style="max-width: 100%; border-radius: 8px;">
+                        <p>Photo captured successfully! Size: ${Math.round(blob.size / 1024)} KB</p>
+                    `;
+                    
+                    showResult('captureResult', true, 'Photo captured and displayed successfully');
+                    testResults['Photo Capture'] = { success: true, message: 'Capture working' };
+                    updateSummary();
+                };
+                reader.readAsDataURL(blob);
+            }, 'image/jpeg', 0.9);
+        }
+
+        function closeTestCamera() {
+            if (testStream) {
+                testStream.getTracks().forEach(track => track.stop());
+                testStream = null;
+            }
+            document.getElementById('testCameraPreview').style.display = 'none';
+        }
+
+        function testFileSelection(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                showResult('fileResult', false, 'Invalid file type selected');
+                testResults['File Selection'] = { success: false, message: 'Invalid file type' };
+                updateSummary();
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('testPhotoPreview');
+                preview.innerHTML = `
+                    <img src="${e.target.result}" alt="Selected File" style="max-width: 100%; border-radius: 8px;">
+                    <p>File selected successfully! Name: ${file.name}, Size: ${Math.round(file.size / 1024)} KB</p>
+                `;
+                
+                showResult('fileResult', true, 'File selection and preview working correctly');
+                testResults['File Selection'] = { success: true, message: 'File selection working' };
+                updateSummary();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            if (testStream) {
+                testStream.getTracks().forEach(track => track.stop());
+            }
+        });
+
+        // Auto-run camera support test
+        document.addEventListener('DOMContentLoaded', function() {
+            testCameraSupport();
+        });
+    </script>
+</body>
+</html>

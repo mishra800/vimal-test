@@ -144,20 +144,44 @@
 - Logout should return to login page
 ```
 
-### **Test 8: User Dashboard Features**
+### **Test 8: User Dashboard Camera Features**
 ```
 ✅ Steps (After regular user login):
 1. Should be on user-dashboard.html
-2. Should see car seizure report form
-3. Test GPS location button
-4. Test photo upload
-5. Fill and submit a report
+2. Should see car seizure report form with camera section
+3. Test camera functionality:
+   a. Click "📱 Take Photo with Camera" button
+   b. Allow camera permission when prompted
+   c. Should see camera preview with video feed
+   d. Click "📸 Capture" button
+   e. Should see captured photo preview with action buttons
+   f. Test "🔄 Retake" and "🗑️ Delete" buttons
+4. Test gallery selection:
+   a. Click "🖼️ Choose from Gallery" button
+   b. Select an image file
+   c. Should see photo preview
+5. Test document camera:
+   a. Click "📱 Camera" button for RC Document
+   b. Should open document camera modal
+   c. Capture document photo
+   d. Should see document preview
+6. Fill form and submit report
 
 ✅ Expected Result:
-- Form should be functional
-- GPS should request location permission
-- Photo upload should show preview
-- Report submission should work
+- Camera opens without errors
+- Video feed displays properly
+- Photo capture works and shows preview
+- Gallery selection works
+- Document camera modal functions
+- Form submission includes photo data
+- Report ID generated and success message shown
+- All photos cleared after submission
+
+✅ Mobile Testing:
+- Test on mobile device or mobile view in browser
+- Camera should use back camera (environment facing)
+- Touch controls should work properly
+- Camera permissions should be requested correctly
 ```
 
 ### **Test 9: Payment Tracking (Admin Only)**
@@ -221,6 +245,136 @@
 
 ---
 
+## 📷 **Camera Integration Tests**
+
+### **Test 16: Camera Permission Handling**
+```
+✅ Steps:
+1. Login as regular user
+2. Go to user dashboard
+3. Click "📱 Take Photo with Camera"
+4. When browser asks for camera permission:
+   a. Test "Allow" - should open camera
+   b. Test "Block" - should show error message with retry option
+
+✅ Expected Result:
+- Permission request appears
+- "Allow" opens camera successfully
+- "Block" shows user-friendly error message
+- "Try Again" button works after permission change
+```
+
+### **Test 17: Camera Functionality**
+```
+✅ Steps:
+1. Open camera successfully
+2. Check camera preview:
+   - Video feed should be clear
+   - Camera frame overlay should be visible
+   - Capture and Close buttons should be present
+3. Test capture:
+   - Click capture button
+   - Should hear camera sound (if enabled)
+   - Should see photo preview immediately
+4. Test photo actions:
+   - "🔄 Retake" should reopen camera
+   - "🗑️ Delete" should remove photo
+
+✅ Expected Result:
+- Camera opens with proper video feed
+- Capture creates high-quality photo
+- Photo preview shows correctly
+- Action buttons work as expected
+```
+
+### **Test 18: Document Camera Modal**
+```
+✅ Steps:
+1. In user dashboard form
+2. Click "📱 Camera" for any document type (RC, License, Other)
+3. Should open modal with:
+   - Document type title
+   - Camera preview
+   - Capture and Close buttons
+4. Capture document photo
+5. Should close modal and show document preview
+
+✅ Expected Result:
+- Modal opens with camera
+- Document capture works
+- Modal closes after capture
+- Document preview appears in form
+```
+
+### **Test 19: Gallery Selection**
+```
+✅ Steps:
+1. Click "🖼️ Choose from Gallery"
+2. Select various file types:
+   - Valid image (JPG, PNG)
+   - Invalid file (TXT, DOC)
+   - Large file (>5MB)
+3. Test file validation
+
+✅ Expected Result:
+- Valid images load and show preview
+- Invalid files show error message
+- Large files show size limit error
+- File selection works on mobile
+```
+
+### **Test 20: Form Submission with Photos**
+```
+✅ Steps:
+1. Fill out complete seizure report form
+2. Add vehicle photo (required)
+3. Add optional document photos
+4. Submit form
+5. Check that report includes all photos
+
+✅ Expected Result:
+- Form validates photo requirement
+- Submission includes all captured photos
+- Photos are stored with report data
+- Form clears after successful submission
+```
+
+### **Test 21: Camera Error Handling**
+```
+✅ Steps:
+1. Test various error scenarios:
+   - No camera available
+   - Camera in use by another app
+   - Browser doesn't support camera
+   - Network issues during capture
+2. Check error messages and recovery options
+
+✅ Expected Result:
+- Appropriate error messages shown
+- Fallback to gallery selection available
+- User can retry or use alternative methods
+- No crashes or broken states
+```
+
+### **Test 22: Mobile Camera Optimization**
+```
+✅ Steps (On mobile device):
+1. Test camera on actual mobile device
+2. Check camera orientation
+3. Test front vs back camera preference
+4. Test touch controls
+5. Test photo quality on mobile
+
+✅ Expected Result:
+- Back camera used by default (environment facing)
+- Good photo quality on mobile
+- Touch controls responsive
+- Proper orientation handling
+- Fast capture and preview
+```
+
+---
+
 ## 📱 **Mobile Responsiveness Tests**
 
 ### **Test 13: Mobile View**
@@ -278,6 +432,10 @@
 - ✅ User signup and login works
 - ✅ Role-based redirects work correctly
 - ✅ Dashboard navigation works
+- ✅ Camera integration works (Tests 16-22)
+- ✅ Photo capture and gallery selection work
+- ✅ Document camera modals function properly
+- ✅ Form submission with photos works
 - ✅ Security protection works
 - ✅ Mobile responsiveness works
 - ✅ Error handling works properly
@@ -315,10 +473,39 @@ Fix: Default admin not created
 Solution: Check createDefaultAdmin() function
 ```
 
-### **Issue: "Redirect not working"**
+### **Issue: "Camera not working"**
 ```
-Fix: Check authentication logic
-Solution: Verify user role and redirect paths
+Fix: Multiple possible causes
+Solutions:
+1. Check browser permissions (Settings > Privacy > Camera)
+2. Ensure HTTPS or localhost (camera requires secure context)
+3. Check if camera is in use by another app
+4. Try different browser (Chrome, Firefox, Safari)
+5. On mobile: check app permissions
+```
+
+### **Issue: "Photo not capturing"**
+```
+Fix: Video stream not ready
+Solution: Wait for video to load before capturing
+Check: video.readyState === 4 before capture
+```
+
+### **Issue: "Camera permission denied"**
+```
+Fix: User blocked camera access
+Solutions:
+1. Click camera icon in address bar to allow
+2. Go to browser settings and enable camera
+3. Use "Try Again" button after enabling
+4. Fallback to gallery selection
+```
+
+### **Issue: "Poor photo quality"**
+```
+Fix: Camera constraints not optimal
+Solution: Check camera resolution settings
+Adjust: width/height constraints in getUserMedia
 ```
 
 ---

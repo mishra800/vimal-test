@@ -19,6 +19,11 @@ let currentSignupMethod = 'email';
 let otpData = {};
 let resendTimer = null;
 
+// Camera functionality variables
+let cameraStream = null;
+let capturedPhotoData = null;
+let currentDocumentType = null;
+
 // Form switching functions
 function showSignup() {
     document.getElementById('loginForm').classList.add('hidden');
@@ -3038,4 +3043,503 @@ if (window.location.pathname.includes('welcome.html')) {
             window.location.href = 'user-dashboard.html';
         }
     }
+}
+// Camera Integration for User Dashboard
+
+let cameraStream = null;
+let currentDocumentType = null;
+let capturedPhotoData = null;
+
+// Camera functionality
+async function openCamera() {
+    const cameraPreview = document.getElementById('cameraPreview');
+    const video = document.getElementById('cameraVideo');
+    
+    try {
+        // Show loading state
+        showCameraLoading();
+        
+        // Request camera permission and stream
+        const constraints = {
+            video: {
+                facingMode: 'environment', // Use back camera on mobile
+                width: { ideal: 1920 },
+                height: { ideal: 1080 }
+            }
+        };
+        
+        cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+        
+        // Hide loading and show camera
+        hideCameraLoading();
+        cameraPreview.style.display = 'block';
+        video.srcObject = cameraStream;
+        
+        // Log camera access
+        console.log('Camera opened successfully');
+        
+    } catch (error) {
+        console.error('Camera access error:', error);
+        hideCameraLoading();
+        showCameraError(error);
+    }
+}
+
+function showCameraLoading() {
+    const cameraPreview = document.getElementById('cameraPreview');
+    cameraPreview.innerHTML = `
+        <div class="camera-loading">
+            <div class="spinner"></div>
+            <p>Opening camera...</p>
+        </div>
+    `;
+    cameraPreview.style.display = 'block';
+}
+
+function hideCameraLoading() {
+    const cameraPreview = document.getElementById('cameraPreview');
+    cameraPreview.innerHTML = `
+        <video id="cameraVideo" autoplay playsinline></video>
+        <div class="camera-overlay">
+            <div class="camera-frame"></div>
+            <div class="camera-actions">
+                <button type="button" onclick="capturePhoto()" class="capture-btn">📸</button>
+                <button type="button" onclick="closeCamera()" class="close-camera-btn">❌ Close</button>
+            </div>
+        </div>
+    `;
+}
+
+function showCameraError(error) {
+    const cameraPreview = document.getElementById('cameraPreview');
+    let errorMessage = 'Unable to access camera. ';
+    
+    if (error.name === 'NotAllowedError') {
+        errorMessage += 'Please allow camera permission and try again.';
+    } else if (error.name === 'NotFoundError') {
+        errorMessage += 'No camera found on this device.';
+    } else if (error.name === 'NotSupportedError') {
+        errorMessage += 'Camera not supported on this browser.';
+    } else {
+        errorMessage += 'Please check camera permissions and try again.';
+    }
+    
+    cameraPreview.innerHTML = `
+        <div class="camera-error">
+            <h4>📷 Camera Error</h4>
+            <p>${errorMessage}</p>
+            <button onclick="requestCameraPermission()" class="permission-btn">Try Again</button>
+            <button onclick="closeCamera()" class="permission-btn" style="margin-left: 10px;">Close</button>
+        </div>
+    `;
+    cameraPreview.style.display = 'block';
+}
+
+async function requestCameraPermission() {
+    try {
+        await navigator.mediaDevices.getUserMedia({ video: true });
+        openCamera();
+    } catch (error) {
+        showCameraError(error);
+    }
+}
+
+function capturePhoto() {
+    const video = document.getElementById('cameraVideo');
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    
+    // Set canvas dimensions to video dimensions
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    
+    // Draw video frame to canvas
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+    // Convert to blob and display
+    canvas.toBlob((blob) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            capturedPhotoData = e.target.result;
+            displayCapturedPhoto(capturedPhotoData);
+            closeCamera();
+        };
+        reader.readAsDataURL(blob);
+    }, 'image/jpeg', 0.9);
+}
+
+function displayCapturedPhoto(photoData) {
+    const photoPreview = document.getElementById('photoPreview');
+    const fileSize = Math.round((photoData.length * 0.75) / 1024); // Approximate file size in KB
+    
+    photoPreview.innerHTML = `
+        <img src="${photoData}" alt="Captured Vehicle Photo">
+        <div class="photo-actions">
+            <button onclick="retakePhoto()" class="photo-action-btn retake-btn">🔄 Retake</button>
+            <button onclick="deletePhoto()" class="photo-action-btn delete-btn">🗑️ Delete</button>
+        </div>
+        <div class="photo-quality quality-good">📸 ${fileSize} KB - Good Quality</div>
+    `;
+    photoPreview.classList.add('active');
+    
+    // Store photo data for form submission
+    window.currentVehiclePhoto = photoData;
+    
+    showNotification('Photo captured successfully!', 'success');
+}
+
+function retakePhoto() {
+    openCamera();
+}
+
+function deletePhoto() {
+    const photoPreview = document.getElementById('photoPreview');
+    photoPreview.innerHTML = '';
+    photoPreview.classList.remove('active');
+    window.currentVehiclePhoto = null;
+    showNotification('Photo deleted', 'info');
+}
+
+function closeCamera() {
+    const cameraPreview = document.getElementById('cameraPreview');
+    
+    // Stop camera stream
+    if (cameraStream) {
+        cameraStream.getTracks().forEach(track => {
+            track.stop();
+        });
+        cameraStream = null;
+    }
+    
+    // Hide camera preview
+    cameraPreview.style.display = 'none';
+    
+    console.log('Camera closed');
+}
+
+// Handle photo selection from gallery
+function handlePhotoSelection(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+        showNotification('Please select a valid image file', 'error');
+        return;
+    }
+    
+    // Validate file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+        showNotification('Image size should be less than 5MB', 'error');
+        return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        displayCapturedPhoto(e.target.result);
+    };
+    reader.readAsDataURL(file);
+}
+
+// Document camera functions
+async function openDocCamera(docType) {
+    currentDocumentType = docType;
+    
+    try {
+        const constraints = {
+            video: {
+                facingMode: 'environment',
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
+            }
+        };
+        
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        showDocumentCameraModal(stream, docType);
+        
+    } catch (error) {
+        console.error('Document camera error:', error);
+        showNotification('Unable to access camera for document capture', 'error');
+    }
+}
+
+function showDocumentCameraModal(stream, docType) {
+    // Create modal for document camera
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.style.display = 'block';
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="close" onclick="closeDocumentCamera()">&times;</span>
+            <h3>📄 Capture ${docType.toUpperCase()} Document</h3>
+            <div class="camera-preview">
+                <video id="docCameraVideo" autoplay playsinline style="width: 100%; height: 300px; object-fit: cover;"></video>
+                <div class="camera-overlay">
+                    <div class="camera-frame"></div>
+                    <div class="camera-actions">
+                        <button type="button" onclick="captureDocument()" class="capture-btn">📸</button>
+                        <button type="button" onclick="closeDocumentCamera()" class="close-camera-btn">❌ Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Set video stream
+    const video = document.getElementById('docCameraVideo');
+    video.srcObject = stream;
+    
+    // Store stream reference
+    window.currentDocStream = stream;
+    window.currentDocModal = modal;
+}
+
+function captureDocument() {
+    const video = document.getElementById('docCameraVideo');
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+    canvas.toBlob((blob) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            handleDocumentCapture(currentDocumentType, e.target.result);
+            closeDocumentCamera();
+        };
+        reader.readAsDataURL(blob);
+    }, 'image/jpeg', 0.9);
+}
+
+function handleDocumentCapture(docType, photoData) {
+    const previewId = docType + 'Preview';
+    const previewDiv = document.getElementById(previewId);
+    
+    if (previewDiv) {
+        previewDiv.innerHTML = `
+            <img src="${photoData}" alt="${docType} Document" style="max-width: 150px; border-radius: 8px;">
+            <div class="doc-actions" style="margin-top: 8px;">
+                <button onclick="retakeDocument('${docType}')" class="photo-action-btn retake-btn">🔄 Retake</button>
+                <button onclick="deleteDocument('${docType}')" class="photo-action-btn delete-btn">🗑️ Delete</button>
+            </div>
+        `;
+        
+        // Store document data
+        window[`current${docType}Document`] = photoData;
+        
+        showNotification(`${docType.toUpperCase()} document captured successfully!`, 'success');
+    }
+}
+
+function closeDocumentCamera() {
+    // Stop camera stream
+    if (window.currentDocStream) {
+        window.currentDocStream.getTracks().forEach(track => {
+            track.stop();
+        });
+        window.currentDocStream = null;
+    }
+    
+    // Remove modal
+    if (window.currentDocModal) {
+        window.currentDocModal.remove();
+        window.currentDocModal = null;
+    }
+    
+    currentDocumentType = null;
+}
+
+function retakeDocument(docType) {
+    openDocCamera(docType);
+}
+
+function deleteDocument(docType) {
+    const previewId = docType + 'Preview';
+    const previewDiv = document.getElementById(previewId);
+    
+    if (previewDiv) {
+        previewDiv.innerHTML = '';
+        window[`current${docType}Document`] = null;
+        showNotification(`${docType.toUpperCase()} document deleted`, 'info');
+    }
+}
+
+// Handle document upload from gallery
+function handleDocumentUpload(event, docType) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    // Validate file
+    if (!file.type.startsWith('image/') && file.type !== 'application/pdf') {
+        showNotification('Please select a valid image or PDF file', 'error');
+        return;
+    }
+    
+    if (file.size > 5 * 1024 * 1024) {
+        showNotification('File size should be less than 5MB', 'error');
+        return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        handleDocumentCapture(docType, e.target.result);
+    };
+    reader.readAsDataURL(file);
+}
+
+// Enhanced report submission with camera photos
+function submitSeizureReport() {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    
+    // Get form data
+    const reportData = {
+        id: 'SR' + Date.now(),
+        submittedBy: currentUser.name,
+        submittedById: currentUser.id,
+        submittedAt: new Date().toISOString(),
+        status: 'pending',
+        coordinates: window.currentCoordinates || null,
+        vehicleInfo: {
+            number: document.getElementById('vehicleNumber').value,
+            type: document.getElementById('vehicleType').value,
+            make: document.getElementById('vehicleMake').value,
+            color: document.getElementById('vehicleColor').value
+        },
+        seizureDetails: {
+            location: document.getElementById('seizureLocation').value,
+            reason: document.getElementById('seizureReason').value,
+            notes: document.getElementById('additionalNotes').value
+        },
+        documents: {}
+    };
+    
+    // Validation
+    if (!reportData.vehicleInfo.number || !reportData.vehicleInfo.type || !reportData.seizureDetails.location || !reportData.seizureDetails.reason) {
+        showNotification('Please fill all required fields', 'error');
+        return;
+    }
+    
+    // Check for vehicle photo (required)
+    if (!window.currentVehiclePhoto) {
+        showNotification('Vehicle photo is required. Please take a photo or select from gallery.', 'error');
+        return;
+    }
+    
+    // Add main vehicle photo
+    reportData.photo = window.currentVehiclePhoto;
+    
+    // Add document photos if available
+    if (window.currentrcDocument) {
+        reportData.documents.rcDocument = {
+            name: 'RC Document',
+            data: window.currentrcDocument,
+            type: 'image/jpeg'
+        };
+    }
+    
+    if (window.currentlicenseDocument) {
+        reportData.documents.licenseDocument = {
+            name: 'License Document',
+            data: window.currentlicenseDocument,
+            type: 'image/jpeg'
+        };
+    }
+    
+    if (window.currentotherDocument) {
+        reportData.documents.otherDocument = {
+            name: 'Other Document',
+            data: window.currentotherDocument,
+            type: 'image/jpeg'
+        };
+    }
+    
+    // Save report
+    const reports = JSON.parse(localStorage.getItem('seizureReports')) || [];
+    reports.push(reportData);
+    localStorage.setItem('seizureReports', JSON.stringify(reports));
+    
+    // Log audit action
+    if (typeof logAuditAction === 'function') {
+        logAuditAction('report_submitted', `Report ${reportData.id}`, `Car seizure report submitted for vehicle ${reportData.vehicleInfo.number}`);
+    }
+    
+    // Show success message
+    showNotification('Report submitted successfully! Report ID: ' + reportData.id, 'success');
+    
+    // Clear form and photos
+    clearReportForm();
+}
+
+function clearReportForm() {
+    // Clear form fields
+    document.getElementById('seizureForm').reset();
+    
+    // Clear photo previews
+    document.getElementById('photoPreview').innerHTML = '';
+    document.getElementById('photoPreview').classList.remove('active');
+    document.getElementById('rcPreview').innerHTML = '';
+    document.getElementById('licensePreview').innerHTML = '';
+    document.getElementById('otherPreview').innerHTML = '';
+    
+    // Clear stored photo data
+    window.currentVehiclePhoto = null;
+    window.currentrcDocument = null;
+    window.currentlicenseDocument = null;
+    window.currentotherDocument = null;
+    
+    // Clear coordinates
+    window.currentCoordinates = null;
+    document.getElementById('coordinates').innerHTML = '';
+}
+
+// Initialize camera functionality
+function initCameraFeatures() {
+    // Check if camera is supported
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        console.warn('Camera not supported on this browser');
+        // Hide camera buttons and show gallery only
+        const cameraButtons = document.querySelectorAll('.camera-btn, .doc-camera-btn');
+        cameraButtons.forEach(btn => {
+            btn.style.display = 'none';
+        });
+        return;
+    }
+    
+    // Add event listeners for camera functionality
+    console.log('Camera features initialized');
+}
+
+// Close camera when page unloads
+window.addEventListener('beforeunload', function() {
+    if (cameraStream) {
+        cameraStream.getTracks().forEach(track => {
+            track.stop();
+        });
+    }
+    
+    if (window.currentDocStream) {
+        window.currentDocStream.getTracks().forEach(track => {
+            track.stop();
+        });
+    }
+});
+
+// Initialize camera features when user dashboard loads
+if (window.location.pathname.includes('user-dashboard.html')) {
+    document.addEventListener('DOMContentLoaded', function() {
+        initCameraFeatures();
+        
+        // Initialize form submission handler
+        const seizureForm = document.getElementById('seizureForm');
+        if (seizureForm) {
+            seizureForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                submitSeizureReport();
+            });
+        }
+    });
 }

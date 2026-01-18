@@ -3,119 +3,189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Dashboard</title>
+    <title>User Dashboard - Car Seizure Management</title>
+    <meta name="description" content="Submit car seizure reports with photo evidence">
     <link rel="icon" type="image/png" href="logo.png">
     <link rel="apple-touch-icon" href="logo.png">
     <link rel="stylesheet" href="styles.css">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
 </head>
 <body>
     <div class="dashboard-container">
         <header class="dashboard-header">
             <div class="header-left">
-                <img src="logo.png" alt="Logo" class="header-logo">
-                <h1>Car Seizure Report</h1>
+                <img src="logo.png" alt="Car Seizure Management System Logo" class="header-logo">
+                <div class="header-text">
+                    <h1>🚗 Car Seizure Report</h1>
+                    <p class="header-subtitle">Submit detailed seizure documentation</p>
+                </div>
             </div>
             <div class="user-info">
-                <span id="userNameDisplay"></span>
-                <button onclick="logout()" class="logout-btn">Logout</button>
+                <div class="user-details">
+                    <span id="userNameDisplay" class="user-name"></span>
+                    <span class="user-role">Officer</span>
+                </div>
+                <button onclick="logout()" class="logout-btn">
+                    <span>🚪</span>
+                    <span>Logout</span>
+                </button>
             </div>
         </header>
 
-        <div class="form-container">
+        <main class="form-container">
             <form id="seizureForm" enctype="multipart/form-data">
-                <div class="form-section">
-                    <h3>Vehicle Information</h3>
+                <!-- Vehicle Information Section -->
+                <section class="form-section">
+                    <h3>🚙 Vehicle Information</h3>
                     
-                    <div class="input-group">
-                        <label for="vehicleNumber">Vehicle Number</label>
-                        <input type="text" id="vehicleNumber" placeholder="e.g., MH12AB1234" required>
-                    </div>
-
-                    <div class="input-group">
-                        <label for="vehicleType">Vehicle Type</label>
-                        <select id="vehicleType" required>
-                            <option value="">Select Vehicle Type</option>
-                            <option value="car">Car</option>
-                            <option value="motorcycle">Motorcycle</option>
-                            <option value="truck">Truck</option>
-                            <option value="bus">Bus</option>
-                            <option value="auto">Auto Rickshaw</option>
-                        </select>
-                    </div>
-
-                    <div class="input-group">
-                        <label for="vehicleMake">Make & Model</label>
-                        <input type="text" id="vehicleMake" placeholder="e.g., Maruti Swift" required>
-                    </div>
-
-                    <div class="input-group">
-                        <label for="vehicleColor">Color</label>
-                        <input type="text" id="vehicleColor" placeholder="e.g., White" required>
-                    </div>
-                </div>
-
-                <div class="form-section">
-                    <h3>Seizure Details</h3>
-                    
-                    <div class="input-group">
-                        <label for="seizureLocation">Location</label>
-                        <div class="location-input-group">
-                            <input type="text" id="seizureLocation" placeholder="Seizure location" required>
-                            <button type="button" id="getLocationBtn" class="location-btn">📍 Get GPS</button>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="vehicleNumber">Vehicle Registration Number *</label>
+                            <input type="text" id="vehicleNumber" placeholder="e.g., MH12AB1234" required 
+                                   aria-describedby="vehicleNumber-help">
+                            <small id="vehicleNumber-help" class="input-help">Enter the complete registration number</small>
                         </div>
-                        <div id="coordinates" class="coordinates-display"></div>
+
+                        <div class="input-group">
+                            <label for="vehicleType">Vehicle Type *</label>
+                            <select id="vehicleType" required aria-describedby="vehicleType-help">
+                                <option value="">Select Vehicle Type</option>
+                                <option value="car">🚗 Car</option>
+                                <option value="motorcycle">🏍️ Motorcycle</option>
+                                <option value="truck">🚛 Truck</option>
+                                <option value="bus">🚌 Bus</option>
+                                <option value="auto">🛺 Auto Rickshaw</option>
+                                <option value="other">🚐 Other</option>
+                            </select>
+                            <small id="vehicleType-help" class="input-help">Choose the appropriate vehicle category</small>
+                        </div>
                     </div>
 
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="vehicleMake">Make & Model *</label>
+                            <input type="text" id="vehicleMake" placeholder="e.g., Maruti Swift" required>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="vehicleColor">Color *</label>
+                            <input type="text" id="vehicleColor" placeholder="e.g., White" required>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Seizure Details Section -->
+                <section class="form-section">
+                    <h3>📍 Seizure Details</h3>
+                    
                     <div class="input-group">
-                        <label for="seizureReason">Reason for Seizure</label>
-                        <select id="seizureReason" required>
-                            <option value="">Select Reason</option>
-                            <option value="no-documents">No Valid Documents</option>
-                            <option value="traffic-violation">Traffic Violation</option>
-                            <option value="illegal-parking">Illegal Parking</option>
-                            <option value="accident">Accident Related</option>
-                            <option value="other">Other</option>
-                        </select>
+                        <label for="seizureLocation">Location *</label>
+                        <div class="location-input-group">
+                            <input type="text" id="seizureLocation" placeholder="Enter seizure location" required>
+                            <button type="button" id="getLocationBtn" class="location-btn" 
+                                    aria-label="Get current GPS location">
+                                📍 GPS
+                            </button>
+                        </div>
+                        <div id="coordinates" class="coordinates-display" aria-live="polite"></div>
+                    </div>
+
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="seizureReason">Reason for Seizure *</label>
+                            <select id="seizureReason" required>
+                                <option value="">Select Reason</option>
+                                <option value="no-documents">📄 No Valid Documents</option>
+                                <option value="traffic-violation">🚦 Traffic Violation</option>
+                                <option value="illegal-parking">🚫 Illegal Parking</option>
+                                <option value="accident">💥 Accident Related</option>
+                                <option value="other">📝 Other</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="seizureTime">Time of Seizure</label>
+                            <input type="datetime-local" id="seizureTime">
+                        </div>
                     </div>
 
                     <div class="input-group">
                         <label for="additionalNotes">Additional Notes</label>
-                        <textarea id="additionalNotes" rows="3" placeholder="Any additional information..."></textarea>
+                        <textarea id="additionalNotes" rows="4" 
+                                  placeholder="Any additional information about the seizure..."></textarea>
                     </div>
-                </div>
+                </section>
 
                 <div class="form-section">
                     <h3>Photo Evidence & Documents</h3>
                     
-                    <div class="photo-upload">
-                        <input type="file" id="vehiclePhoto" accept="image/*" capture="camera" required>
-                        <label for="vehiclePhoto" class="photo-label">
-                            <div class="photo-placeholder">
-                                <span>📷</span>
-                                <p>Take Vehicle Photo</p>
+                    <!-- Camera Photo Capture -->
+                    <div class="camera-section">
+                        <h4>📷 Vehicle Photo (Required)</h4>
+                        <div class="camera-controls">
+                            <button type="button" onclick="openCamera()" class="camera-btn">
+                                📱 Take Photo with Camera
+                            </button>
+                            <button type="button" onclick="document.getElementById('vehiclePhoto').click()" class="gallery-btn">
+                                🖼️ Choose from Gallery
+                            </button>
+                        </div>
+                        
+                        <!-- Hidden file input for gallery -->
+                        <input type="file" id="vehiclePhoto" accept="image/*" style="display: none;" onchange="handlePhotoSelection(event)">
+                        
+                        <!-- Camera preview area -->
+                        <div id="cameraPreview" class="camera-preview" style="display: none;">
+                            <video id="cameraVideo" autoplay playsinline></video>
+                            <div class="camera-overlay">
+                                <div class="camera-frame"></div>
+                                <div class="camera-actions">
+                                    <button type="button" onclick="capturePhoto()" class="capture-btn">📸 Capture</button>
+                                    <button type="button" onclick="closeCamera()" class="close-camera-btn">❌ Close</button>
+                                </div>
                             </div>
-                        </label>
-                        <div id="photoPreview" class="photo-preview"></div>
+                        </div>
+                        
+                        <!-- Photo preview area -->
+                        <div id="photoPreview" class="photo-preview">
+                            <!-- Captured/selected photo will appear here -->
+                        </div>
                     </div>
 
+                    <!-- Additional Documents Upload -->
                     <div class="document-upload">
-                        <h4>Additional Documents (Optional)</h4>
+                        <h4>📄 Additional Documents (Optional)</h4>
                         <div class="document-types">
                             <div class="doc-upload-item">
                                 <label for="rcDocument">Registration Certificate (RC)</label>
-                                <input type="file" id="rcDocument" accept="image/*,.pdf">
+                                <div class="doc-controls">
+                                    <button type="button" onclick="openDocCamera('rc')" class="doc-camera-btn">📱 Camera</button>
+                                    <input type="file" id="rcDocument" accept="image/*,.pdf" onchange="handleDocumentUpload(event, 'rc')">
+                                    <label for="rcDocument" class="doc-gallery-btn">🖼️ Gallery</label>
+                                </div>
                                 <div id="rcPreview" class="doc-preview"></div>
                             </div>
+                            
                             <div class="doc-upload-item">
                                 <label for="licenseDocument">Driving License</label>
-                                <input type="file" id="licenseDocument" accept="image/*,.pdf">
+                                <div class="doc-controls">
+                                    <button type="button" onclick="openDocCamera('license')" class="doc-camera-btn">📱 Camera</button>
+                                    <input type="file" id="licenseDocument" accept="image/*,.pdf" onchange="handleDocumentUpload(event, 'license')">
+                                    <label for="licenseDocument" class="doc-gallery-btn">🖼️ Gallery</label>
+                                </div>
                                 <div id="licensePreview" class="doc-preview"></div>
                             </div>
+                            
                             <div class="doc-upload-item">
                                 <label for="otherDocument">Other Document</label>
-                                <input type="file" id="otherDocument" accept="image/*,.pdf">
+                                <div class="doc-controls">
+                                    <button type="button" onclick="openDocCamera('other')" class="doc-camera-btn">📱 Camera</button>
+                                    <input type="file" id="otherDocument" accept="image/*,.pdf" onchange="handleDocumentUpload(event, 'other')">
+                                    <label for="otherDocument" class="doc-gallery-btn">🖼️ Gallery</label>
+                                </div>
                                 <div id="otherPreview" class="doc-preview"></div>
                             </div>
                         </div>
