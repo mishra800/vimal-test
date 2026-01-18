@@ -1,0 +1,139 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.container {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+}
+
+.form-container {
+    width: 100%;
+}
+
+.form-container.hidden {
+    display: none;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #333;
+    font-size: 2rem;
+}
+
+.input-group {
+    margin-bottom: 1rem;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e1e1e1;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: border-color 0.3s;
+}
+
+input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+button:hover {
+    transform: translateY(-2px);
+}
+
+.switch-form {
+    text-align: center;
+    margin-top: 1rem;
+    color: #666;
+}
+
+.switch-form span {
+    color: #667eea;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.switch-form span:hover {
+    color: #764ba2;
+}
+
+/* Welcome Page Styles */
+.welcome-container {
+    background: white;
+    padding: 3rem;
+    border-radius: 10px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 500px;
+    width: 100%;
+}
+
+.welcome-content h1 {
+    color: #333;
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.welcome-content p {
+    color: #666;
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+}
+
+.welcome-actions {
+    margin-top: 2rem;
+}
+
+.logout-btn {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+    max-width: 200px;
+}
+
+.logout-btn:hover {
+    transform: translateY(-2px);
+}
+
+/* Error Messages */
+.error {
+    color: #ff6b6b;
+    font-size: 14px;
+    margin-top: 5px;
+    text-align: center;
+}
+
+.success {
+    color: #51cf66;
+    font-size: 14px;
+    margin-top: 5px;
+    text-align: center;
+}

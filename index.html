@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login & Signup</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="LoginApp">
+</head>
+<body>
+    <div class="container">
+        <div class="form-container" id="loginForm">
+            <h2>Login</h2>
+            <form id="login">
+                <div class="input-group">
+                    <input type="email" id="loginEmail" placeholder="Email" required>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="loginPassword" placeholder="Password" required>
+                </div>
+                <button type="submit">Login</button>
+                <p class="switch-form">Don't have an account? <span onclick="showSignup()">Sign up</span></p>
+            </form>
+        </div>
+
+        <div class="form-container hidden" id="signupForm">
+            <h2>Sign Up</h2>
+            <form id="signup">
+                <div class="input-group">
+                    <input type="text" id="signupName" placeholder="Full Name" required>
+                </div>
+                <div class="input-group">
+                    <input type="email" id="signupEmail" placeholder="Email" required>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="signupPassword" placeholder="Password" required>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+                </div>
+                <button type="submit">Sign Up</button>
+                <p class="switch-form">Already have an account? <span onclick="showLogin()">Login</span></p>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
