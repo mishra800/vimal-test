@@ -296,12 +296,21 @@ function loginWithPhone(phoneNumber) {
         // Log audit action
         logAuditAction('login_success', 'Phone Login', `User logged in via phone: ${phoneNumber}`);
         
-        showMessage('Login successful!', 'success');
+        // Show success message with role-specific redirect info
+        if (user.isAdmin) {
+            showMessage('Admin login successful! Redirecting to Admin Dashboard...', 'success');
+        } else {
+            showMessage('Login successful! Redirecting to User Dashboard...', 'success');
+        }
         
-        // Redirect to welcome page
+        // Direct redirect based on user role
         setTimeout(() => {
-            window.location.href = 'welcome.html';
-        }, 1000);
+            if (user.isAdmin) {
+                window.location.href = 'admin-dashboard.html';
+            } else {
+                window.location.href = 'user-dashboard.html';
+            }
+        }, 1500);
     } else {
         showMessage('Phone number not registered. Please sign up first.', 'error');
         backToPhoneInput();
@@ -591,8 +600,84 @@ function closeForgotPassword() {
 // Simple user storage (in real app, this would be a database)
 let users = JSON.parse(localStorage.getItem('users')) || [];
 
+// Create default admin account if no users exist
+function createDefaultAdmin() {
+    if (users.length === 0) {
+        const defaultAdmin = {
+            id: 1,
+            firstName: "Admin",
+            lastName: "User",
+            name: "Admin User",
+            username: "admin",
+            email: "admin@carseizure.com",
+            phone: "+919876543210",
+            password: "admin123",
+            isAdmin: true,
+            status: 'active',
+            createdAt: new Date().toISOString()
+        };
+        
+        users.push(defaultAdmin);
+        localStorage.setItem('users', JSON.stringify(users));
+        console.log('Default admin account created:');
+        console.log('Email: admin@carseizure.com');
+        console.log('Username: admin');
+        console.log('Password: admin123');
+    }
+}
+
+// Initialize default admin on page load
+createDefaultAdmin();
+
 // Enhanced login form handler
 document.addEventListener('DOMContentLoaded', function() {
+    // Authentication check for dashboard pages first
+    const currentPage = window.location.pathname.split('/').pop();
+    const dashboardPages = [
+        'admin-dashboard.html',
+        'user-dashboard.html',
+        'user-management.html',
+        'system-config.html',
+        'report-management.html',
+        'audit-trail.html',
+        'analytics.html'
+    ];
+    
+    if (dashboardPages.includes(currentPage)) {
+        if (!checkAuthentication()) {
+            return; // Stop execution if authentication fails
+        }
+    }
+    
+    // Initialize page-specific functionality
+    if (window.location.pathname.includes('user-dashboard.html')) {
+        initUserDashboard();
+    } else if (window.location.pathname.includes('admin-dashboard.html')) {
+        initAdminDashboard();
+    } else if (window.location.pathname.includes('user-management.html')) {
+        initUserManagement();
+    } else if (window.location.pathname.includes('system-config.html')) {
+        initSystemConfig();
+    } else if (window.location.pathname.includes('report-management.html')) {
+        initReportManagement();
+    } else if (window.location.pathname.includes('audit-trail.html')) {
+        initAuditTrail();
+    } else if (window.location.pathname.includes('analytics.html')) {
+        initAnalytics();
+    }
+    
+    // Initialize GPS functionality if on user dashboard
+    if (window.location.pathname.includes('user-dashboard.html')) {
+        initGPSLocation();
+        initDocumentUpload();
+    }
+    
+    // Initialize payment tracker if on admin dashboard
+    if (window.location.pathname.includes('admin-dashboard.html')) {
+        // Payment tracker is initialized via modal
+    }
+    
+    // Login/Signup page functionality
     const emailLoginForm = document.getElementById('emailLogin');
     const emailSignupForm = document.getElementById('emailSignup');
     const forgotPasswordForm = document.getElementById('forgotPasswordForm');
@@ -640,16 +725,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 
                 // Log audit action
-                logAuditAction('login_success', 'Email/Username Login', `User logged in: ${identifier}`);
+                if (typeof logAuditAction === 'function') {
+                    logAuditAction('login_success', 'Email/Username Login', `User logged in: ${identifier}`);
+                }
                 
-                showMessage('Login successful!', 'success');
+                // Show success message with role-specific redirect info
+                if (user.isAdmin) {
+                    showMessage('Admin login successful! Redirecting to Admin Dashboard...', 'success');
+                } else {
+                    showMessage('Login successful! Redirecting to User Dashboard...', 'success');
+                }
                 
-                // Redirect to welcome page
+                // Direct redirect based on user role
                 setTimeout(() => {
-                    window.location.href = 'welcome.html';
-                }, 1000);
+                    if (user.isAdmin) {
+                        window.location.href = 'admin-dashboard.html';
+                    } else {
+                        window.location.href = 'user-dashboard.html';
+                    }
+                }, 1500);
             } else {
-                logAuditAction('login_failed', 'Email/Username Login', `Failed login attempt: ${identifier}`);
+                if (typeof logAuditAction === 'function') {
+                    logAuditAction('login_failed', 'Email/Username Login', `Failed login attempt: ${identifier}`);
+                }
                 showMessage('Invalid credentials', 'error');
             }
         });
@@ -721,7 +819,9 @@ document.addEventListener('DOMContentLoaded', function() {
             localStorage.setItem('users', JSON.stringify(users));
             
             // Log audit action
-            logAuditAction('user_created', 'Email Signup', `New user registered: ${email}`);
+            if (typeof logAuditAction === 'function') {
+                logAuditAction('user_created', 'Email Signup', `New user registered: ${email}`);
+            }
             
             showMessage('Account created successfully! Please login.', 'success');
             
@@ -747,7 +847,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log(`Password reset requested for: ${email}`);
                 
                 // Log audit action
-                logAuditAction('password_reset_requested', 'Password Reset', `Reset requested for: ${email}`);
+                if (typeof logAuditAction === 'function') {
+                    logAuditAction('password_reset_requested', 'Password Reset', `Reset requested for: ${email}`);
+                }
             } else {
                 showMessage('Email not found', 'error');
             }
@@ -756,21 +858,71 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // Quick Payment Form (if exists)
+    const quickPaymentForm = document.getElementById('quickPaymentForm');
+    if (quickPaymentForm) {
+        quickPaymentForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            submitQuickPayment();
+        });
+    }
+    
+    // User Form (if exists)
+    const userForm = document.getElementById('userForm');
+    if (userForm) {
+        userForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            saveUser();
+        });
+    }
+    
+    // Add search functionality to admin dashboard
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', applyFilters);
+    }
+    
+    // Auto-format vehicle number input
+    const vehicleInputs = ['vehicleSearchInput', 'paymentVehicleNumber', 'vehicleNumber'];
+    vehicleInputs.forEach(inputId => {
+        const input = document.getElementById(inputId);
+        if (input) {
+            input.addEventListener('input', function() {
+                // Convert to uppercase for consistency
+                this.value = this.value.toUpperCase();
+            });
+        }
+    });
+    
+    // Auto-format mobile number input
+    const mobileInputs = ['paymentMobileNumber', 'signupPhone', 'phoneNumber', 'signupPhoneNumber'];
+    mobileInputs.forEach(inputId => {
+        const input = document.getElementById(inputId);
+        if (input) {
+            input.addEventListener('input', function() {
+                // Remove non-digits
+                this.value = this.value.replace(/\D/g, '');
+                // Limit to 10 digits for Indian numbers
+                if (this.value.length > 10) {
+                    this.value = this.value.slice(0, 10);
+                }
+            });
+        }
+    });
+    
     // Load remembered user
     const rememberedUser = localStorage.getItem('rememberedUser');
-    if (rememberedUser) {
+    if (rememberedUser && document.getElementById('loginIdentifier')) {
         document.getElementById('loginIdentifier').value = rememberedUser;
         document.getElementById('rememberMe').checked = true;
     }
     
-    // Auto-format phone numbers
-    const phoneInputs = document.querySelectorAll('input[type="tel"]');
-    phoneInputs.forEach(input => {
-        input.addEventListener('input', function() {
-            // Remove non-digits
-            this.value = this.value.replace(/\D/g, '');
-        });
-    });
+    // Log page access
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    if (currentUser && typeof logAuditAction === 'function') {
+        const pageName = window.location.pathname.split('/').pop();
+        logAuditAction('page_access', pageName, `Accessed ${pageName}`);
+    }
 });
 
 // Helper function to show messages
@@ -806,18 +958,7 @@ window.onclick = function(event) {
     }
 }
 
-// Car Seizure Report Functionality
-document.addEventListener('DOMContentLoaded', function() {
-    // Check if we're on user dashboard
-    if (window.location.pathname.includes('user-dashboard.html')) {
-        initUserDashboard();
-    }
-    
-    // Check if we're on admin dashboard
-    if (window.location.pathname.includes('admin-dashboard.html')) {
-        initAdminDashboard();
-    }
-});
+// Car Seizure Report Functionality - Moved to main DOMContentLoaded
 
 // User Dashboard Functions
 function initUserDashboard() {
@@ -1643,25 +1784,7 @@ function showNotification(message, type = 'info') {
     }, 5000);
 }
 
-// Initialize enhanced features
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize GPS functionality
-    initGPSLocation();
-    
-    // Initialize document upload
-    initDocumentUpload();
-    
-    // Add search functionality to admin dashboard
-    const searchInput = document.getElementById('searchInput');
-    if (searchInput) {
-        searchInput.addEventListener('input', applyFilters);
-    }
-    
-    // Initialize analytics if on analytics page
-    if (window.location.pathname.includes('analytics.html')) {
-        initAnalytics();
-    }
-});
+// Initialize enhanced features - Moved to main DOMContentLoaded
 
 // Analytics Functions
 function initAnalytics() {
@@ -2397,35 +2520,7 @@ function addToRealtimeFeed(entry) {
     }, 3000);
 }
 
-// Initialize appropriate page functions
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize based on current page
-    if (window.location.pathname.includes('user-management.html')) {
-        initUserManagement();
-    } else if (window.location.pathname.includes('system-config.html')) {
-        initSystemConfig();
-    } else if (window.location.pathname.includes('report-management.html')) {
-        initReportManagement();
-    } else if (window.location.pathname.includes('audit-trail.html')) {
-        initAuditTrail();
-    }
-    
-    // Add event listeners for forms
-    const userForm = document.getElementById('userForm');
-    if (userForm) {
-        userForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            saveUser();
-        });
-    }
-    
-    // Log page access
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    if (currentUser) {
-        const pageName = window.location.pathname.split('/').pop();
-        logAuditAction('page_access', pageName, `Accessed ${pageName}`);
-    }
-});
+// Initialize appropriate page functions - Moved to main DOMContentLoaded
 
 // Helper function to save user
 function saveUser() {
@@ -2693,16 +2788,7 @@ function viewFullScreenshot(screenshotData) {
     });
 }
 
-// Handle Quick Payment Form Submission
-document.addEventListener('DOMContentLoaded', function() {
-    const quickPaymentForm = document.getElementById('quickPaymentForm');
-    if (quickPaymentForm) {
-        quickPaymentForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            submitQuickPayment();
-        });
-    }
-});
+// Handle Quick Payment Form Submission - Moved to main DOMContentLoaded
 
 // Submit Quick Payment
 function submitQuickPayment() {
@@ -2810,33 +2896,7 @@ function clearPaymentForm() {
     window.currentPaymentScreenshot = null;
 }
 
-// Auto-format vehicle number input
-document.addEventListener('DOMContentLoaded', function() {
-    const vehicleInputs = ['vehicleSearchInput', 'paymentVehicleNumber'];
-    
-    vehicleInputs.forEach(inputId => {
-        const input = document.getElementById(inputId);
-        if (input) {
-            input.addEventListener('input', function() {
-                // Convert to uppercase for consistency
-                this.value = this.value.toUpperCase();
-            });
-        }
-    });
-    
-    // Auto-format mobile number input
-    const mobileInput = document.getElementById('paymentMobileNumber');
-    if (mobileInput) {
-        mobileInput.addEventListener('input', function() {
-            // Remove non-digits
-            this.value = this.value.replace(/\D/g, '');
-            // Limit to 10 digits
-            if (this.value.length > 10) {
-                this.value = this.value.slice(0, 10);
-            }
-        });
-    }
-});
+// Auto-format vehicle number input - Moved to main DOMContentLoaded
 
 // Close modal when clicking outside
 window.addEventListener('click', function(event) {
@@ -2909,4 +2969,73 @@ function exportVehiclePayments() {
     window.URL.revokeObjectURL(url);
     
     showNotification('Payment data exported successfully', 'success');
+}
+// Logout function
+function logout() {
+    // Get current user for audit log
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    
+    // Log audit action if user exists
+    if (currentUser) {
+        logAuditAction('logout', 'User Logout', `User logged out: ${currentUser.email || currentUser.username || currentUser.phone}`);
+    }
+    
+    // Clear user session
+    localStorage.removeItem('currentUser');
+    
+    // Clear any temporary data
+    sessionStorage.clear();
+    
+    // Show logout message
+    console.log('User logged out successfully');
+    
+    // Redirect to login page
+    window.location.href = 'index.html';
+}
+// Authentication check for dashboard pages
+function checkAuthentication() {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    const currentPage = window.location.pathname.split('/').pop();
+    
+    // If no user is logged in, redirect to login
+    if (!currentUser) {
+        window.location.href = 'index.html';
+        return false;
+    }
+    
+    // Check admin-only pages
+    const adminPages = [
+        'admin-dashboard.html',
+        'user-management.html',
+        'system-config.html',
+        'report-management.html',
+        'audit-trail.html',
+        'analytics.html'
+    ];
+    
+    if (adminPages.includes(currentPage) && !currentUser.isAdmin) {
+        alert('Access denied. Admin privileges required.');
+        window.location.href = 'user-dashboard.html';
+        return false;
+    }
+    
+    return true;
+}
+
+// Run authentication check on page load for dashboard pages - Moved to main DOMContentLoaded
+// Welcome page redirect (Remove welcome page from flow)
+if (window.location.pathname.includes('welcome.html')) {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    
+    if (!currentUser) {
+        // Redirect to login if no user is logged in
+        window.location.href = 'index.html';
+    } else {
+        // Immediately redirect to appropriate dashboard based on role
+        if (currentUser.isAdmin) {
+            window.location.href = 'admin-dashboard.html';
+        } else {
+            window.location.href = 'user-dashboard.html';
+        }
+    }
 }

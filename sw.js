@@ -1,10 +1,18 @@
-const CACHE_NAME = 'login-app-v1';
+const CACHE_NAME = 'car-seizure-app-v1';
 const urlsToCache = [
   '/',
   '/index.html',
-  '/welcome.html',
+  '/admin-dashboard.html',
+  '/user-dashboard.html',
+  '/analytics.html',
+  '/user-management.html',
+  '/system-config.html',
+  '/report-management.html',
+  '/audit-trail.html',
   '/styles.css',
   '/script.js',
+  '/qrcode.min.js',
+  '/logo.png',
   '/manifest.json'
 ];
 
